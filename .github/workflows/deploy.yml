@@ -1,4 +1,4 @@
-name: Merge Selected Branches to Temp Branch (Env: ${{ env.ENVIRONMENT }})
+name: run
 
 on:
   workflow_dispatch:
