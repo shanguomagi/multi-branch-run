@@ -31,6 +31,10 @@ jobs:
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
 
+      - name: Push temporary branch
+        run: |
+          git push origin ${{ steps.generate-branch-name.outputs.branch_name }}
+
       - name: Merge selected branches
         id: merge
         continue-on-error: true
@@ -46,7 +50,6 @@ jobs:
       - name: Check for merge conflicts
         if: steps.merge.outcome == 'failure'
         run: |
-          git push -u origin ${{ steps.generate-branch-name.outputs.branch_name }}
           echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again."
           exit 1
 
