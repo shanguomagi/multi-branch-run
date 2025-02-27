@@ -1,58 +1,57 @@
-name: Merge Selected Branches to Temp Branch
+name: Merge Selected Branches to Temp Branch (Env: ${{ env.ENVIRONMENT }})
 
 on:
   workflow_dispatch:
     inputs:
-      branch1:
-        description: 'First branch to merge'
+      branches:
+        description: 'Branches to merge (separated by space)'
         required: true
         type: string
-      branch2:
-        description: 'Second branch to merge'
-        required: true
-        type: string
-      branch3:
-        description: 'Third branch to merge'
+      environment:
+        description: 'Environment (e.g., dev, staging, prod)'
         required: true
         type: string
 
 jobs:
   merge-branches:
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
     steps:
-      - name: Checkout code
+      - name: Checkout code (Env: ${{ env.ENVIRONMENT }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Generate temporary branch name
+      - name: Generate temporary branch name (Env: ${{ env.ENVIRONMENT }})
         id: generate-branch-name
         run: |
           timestamp=$(date +%s)
           echo "::set-output name=branch_name::tmp_time${timestamp}"
 
-      - name: Create temporary branch
+      - name: Create temporary branch (Env: ${{ env.ENVIRONMENT }})
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
 
-      - name: Merge selected branches
+      - name: Merge selected branches (Env: ${{ env.ENVIRONMENT }})
         id: merge
         continue-on-error: true
         run: |
-          for branch in ${{ github.event.inputs.branch1 }} ${{ github.event.inputs.branch2 }} ${{ github.event.inputs.branch3 }}; do
+          branches="${{ github.event.inputs.branches }}"
+          for branch in $branches; do
             if ! git merge --no-ff $branch; then
-              echo "Merge conflict detected when merging branch $branch."
+              echo "Merge conflict detected when merging branch $branch in ${{ env.ENVIRONMENT }} environment."
               exit 1
             fi
           done
 
-      - name: Check for merge conflicts
+      - name: Check for merge conflicts (Env: ${{ env.ENVIRONMENT }})
         if: steps.merge.outcome == 'failure'
         run: |
-          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again."
+          echo "Merge conflicts have occurred in ${{ env.ENVIRONMENT }} environment. Please manually resolve the conflicts and try again."
           exit 1
 
-      - name: Push temporary branch
+      - name: Push temporary branch (Env: ${{ env.ENVIRONMENT }})
         if: steps.merge.outcome == 'success'
         run: |
           git push origin ${{ steps.generate-branch-name.outputs.branch_name }}
