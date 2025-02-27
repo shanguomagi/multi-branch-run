@@ -1,0 +1,58 @@
+name: Merge Selected Branches to Temp Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch1:
+        description: 'First branch to merge'
+        required: true
+        type: string
+      branch2:
+        description: 'Second branch to merge'
+        required: true
+        type: string
+      branch3:
+        description: 'Third branch to merge'
+        required: true
+        type: string
+
+jobs:
+  merge-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Generate temporary branch name
+        id: generate-branch-name
+        run: |
+          timestamp=$(date +%s)
+          echo "::set-output name=branch_name::tmp_time${timestamp}"
+
+      - name: Create temporary branch
+        run: |
+          git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
+
+      - name: Merge selected branches
+        id: merge
+        continue-on-error: true
+        run: |
+          for branch in ${{ github.event.inputs.branch1 }} ${{ github.event.inputs.branch2 }} ${{ github.event.inputs.branch3 }}; do
+            if ! git merge --no-ff $branch; then
+              echo "Merge conflict detected when merging branch $branch."
+              exit 1
+            fi
+          done
+
+      - name: Check for merge conflicts
+        if: steps.merge.outcome == 'failure'
+        run: |
+          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again."
+          exit 1
+
+      - name: Push temporary branch
+        if: steps.merge.outcome == 'success'
+        run: |
+          git push origin ${{ steps.generate-branch-name.outputs.branch_name }}
