@@ -46,6 +46,7 @@ jobs:
       - name: Check for merge conflicts
         if: steps.merge.outcome == 'failure'
         run: |
+          git push origin ${{ steps.generate-branch-name.outputs.branch_name }}
           echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again."
           exit 1
 
