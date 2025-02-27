@@ -18,40 +18,40 @@ jobs:
     env:
       ENVIRONMENT: ${{ github.event.inputs.environment }}
     steps:
-      - name: Checkout code (Env: ${{ env.ENVIRONMENT }})
+      - name: Checkout code (Env: ${{ github.event.inputs.environment }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Generate temporary branch name (Env: ${{ env.ENVIRONMENT }})
+      - name: Generate temporary branch name
         id: generate-branch-name
         run: |
           timestamp=$(date +%s)
           echo "::set-output name=branch_name::tmp_time${timestamp}"
 
-      - name: Create temporary branch (Env: ${{ env.ENVIRONMENT }})
+      - name: Create temporary branch
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
 
-      - name: Merge selected branches (Env: ${{ env.ENVIRONMENT }})
+      - name: Merge selected branches
         id: merge
         continue-on-error: true
         run: |
           branches="${{ github.event.inputs.branches }}"
           for branch in $branches; do
             if ! git merge --no-ff $branch; then
-              echo "Merge conflict detected when merging branch $branch in ${{ env.ENVIRONMENT }} environment."
+              echo "Merge conflict detected when merging branch $branch "
               exit 1
             fi
           done
 
-      - name: Check for merge conflicts (Env: ${{ env.ENVIRONMENT }})
+      - name: Check for merge conflicts
         if: steps.merge.outcome == 'failure'
         run: |
-          echo "Merge conflicts have occurred in ${{ env.ENVIRONMENT }} environment. Please manually resolve the conflicts and try again."
+          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again."
           exit 1
 
-      - name: Push temporary branch (Env: ${{ env.ENVIRONMENT }})
+      - name: Push temporary branch
         if: steps.merge.outcome == 'success'
         run: |
           git push origin ${{ steps.generate-branch-name.outputs.branch_name }}
