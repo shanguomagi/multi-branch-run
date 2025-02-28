@@ -43,6 +43,9 @@ jobs:
             fi
           done
 
+      - name: Check status
+        run: git status
+        
       - name: Push temporary branch
         run: |
           git push origin ${{ steps.generate-branch-name.outputs.branch_name }}
