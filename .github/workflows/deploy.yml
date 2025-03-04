@@ -30,8 +30,8 @@ jobs:
           IFS=' ' read -r -a branch_array <<< "$branches"
           sorted_branches=($(printf "%s\n" "${branch_array[@]}" | sort))
           asc_branch_name=$(IFS=_; echo "${sorted_branches[*]}")
-          echo "::set-output name=asc_branch_name::${asc_branches}"
-          echo $asc_branch_name
+          echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
+          echo "${asc_branch_name}"
 
 #      - name: Read Cache Branch
 #        id: read-cache-branch
@@ -43,7 +43,7 @@ jobs:
         id: generate-branch-name
         run: |
           timestamp=$(date +%s)
-          echo "::set-output name=branch_name::tmp/tmp_${timestamp}"
+          echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
 
       - name: Create temporary branch
         run: |
