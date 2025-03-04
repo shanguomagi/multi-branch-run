@@ -18,7 +18,10 @@ jobs:
       TMP_BRANCH_NAME: ${{ steps.generate-branch-name.outputs.branch_name }}
     runs-on: ubuntu-latest
     steps:
-
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Generate temporary branch name
         id: generate-branch-name
@@ -40,7 +43,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Create temporary branch
+
+      - name: Checkout temporary branch
         run: |
           git fetch
           git checkout -b ${{ env.TMP_BRANCH_NAME }}
