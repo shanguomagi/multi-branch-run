@@ -38,7 +38,7 @@ jobs:
       - name: Read Cache Branch
         id: read-cache-branch
         run: |
-          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' cache.json)
+          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' multiple_branch.json)
           if [ -n "$branch_info" ]; then
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
             echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
