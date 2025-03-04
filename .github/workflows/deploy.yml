@@ -47,7 +47,7 @@ jobs:
       - name: Checkout temporary branch
         run: |
           git fetch
-          git checkout -b ${{ env.TMP_BRANCH_NAME }}
+          git checkout ${{ env.TMP_BRANCH_NAME }}
           git pull
 
       - name: Merge selected branches
