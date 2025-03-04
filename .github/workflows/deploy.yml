@@ -32,7 +32,7 @@ jobs:
       - name: Create temporary branch
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
-          git push origin ${{ steps.generate-branch-name.outputs.branch_name }}
+          git push -u origin ${{ steps.generate-branch-name.outputs.branch_name }}
 
   merge-branches:
     needs: [ create-tmp-branches ]
@@ -49,7 +49,6 @@ jobs:
         run: |
           git fetch
           git checkout -b ${{ env.TMP_BRANCH_NAME }}
-          git pull -u origin ${{ env.TMP_BRANCH_NAME }}
 
       - name: Merge selected branches
         id: merge
@@ -68,7 +67,7 @@ jobs:
         
       - name: Push temporary branch
         run: |
-          git push origin ${{ env.TMP_BRANCH_NAME }}
+          git push -u origin ${{ env.TMP_BRANCH_NAME }}
 
       - name: Check for merge conflicts
         if: steps.merge.outcome == 'failure'
