@@ -35,19 +35,38 @@ jobs:
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
 
-#      - name: Read Cache Branch
-#        id: read-cache-branch
-#        run: |
-#          branch_info=$(jq -r '.$branch_asc' cache.json)
-#          branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+      - name: Read Cache Branch
+        id: read-cache-branch
+        run: |
+          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' cache.json)
+          if [ -n "$branch_info" ]; then
+            branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+            echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch_name=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Generate temporary branch name
         id: generate-branch-name
+        if: steps.read-cache.outputs. branch_name == ''
         run: |
           timestamp=$(date +%s)
+          time=$(date +%Y-%m-%d\ %H:%M:%S)
+          branch_name=tmp/tmp_${timestamp}
+          git checkout -b $branch_name
+          git push -u origin $branch_name
           echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+          BRANCH_INFO='{ "branch_name": $branch_name, "time": $time, "timestamp": $timestamp}'
+          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' multiple_branch.json > temp.json && mv temp.json multiple_branch.json
+
+
+
+
+          jq --arg new_name "$NEW_NAME" '.name = $new_name' cache.json > temp.json && mv temp.json cache.json
+
 
       - name: Create temporary branch
+        if: steps.read-cache.outputs. branch_name == ''
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
           git push -u origin ${{ steps.generate-branch-name.outputs.branch_name }}
