@@ -27,7 +27,7 @@ jobs:
         id: generate-branch-name
         run: |
           timestamp=$(date +%s)
-          echo "::set-output name=branch_name::tmp_time${timestamp}"
+          echo "::set-output name=branch_name::tmp/tmp_${timestamp}"
 
       - name: Create temporary branch
         run: |
@@ -84,5 +84,6 @@ jobs:
         if: steps.merge.outcome == 'failure'
         run: |
           echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again."
+          echo "$COMMIT_HASH"
           exit 1
 
