@@ -23,6 +23,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Branches sort name key
+        id: branches-sort
+        run: |
+          branches="bbb ccc aaa"
+          IFS=' ' read -r -a branch_array <<< "$branches"
+          sorted_branches=($(printf "%s\n" "${branch_array[@]}" | sort))
+          asc_branch_name=$(IFS=_; echo "${sorted_branches[*]}")
+          echo "::set-output name=asc_branch_name::${asc_branches}"
+          echo $asc_branch_name
+
+#      - name: Read Cache Branch
+#        id: read-cache-branch
+#        run: |
+#          branch_info=$(jq -r '.$branch_asc' cache.json)
+#          branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+
       - name: Generate temporary branch name
         id: generate-branch-name
         run: |
