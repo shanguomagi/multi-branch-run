@@ -7,10 +7,12 @@ on:
         description: 'Branches to merge (separated by space)'
         required: true
         type: string
+        default: "bbb aaa ccc"
       environment:
         description: 'Environment (e.g., dev, staging, prod)'
         required: true
         type: string
+        default: dev
 
 jobs:
   create-tmp-branches:
@@ -26,7 +28,7 @@ jobs:
       - name: Branches sort name key
         id: branches-sort
         run: |
-          branches="bbb ccc aaa"
+          branches="${{ github.event.inputs.branches }}"
           IFS=' ' read -r -a branch_array <<< "$branches"
           sorted_branches=($(printf "%s\n" "${branch_array[@]}" | sort))
           asc_branch_name=$(IFS=_; echo "${sorted_branches[*]}")
