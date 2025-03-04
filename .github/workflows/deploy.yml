@@ -16,8 +16,6 @@ on:
 
 jobs:
   create-tmp-branches:
-    env:
-      MULTIPLE_BRANCH_PATH: ./github/workflows/multiple_branch.json
     outputs:
       TMP_BRANCH_NAME: ${{ steps.generate-branch-name.outputs.branch_name }}
     runs-on: ubuntu-latest
@@ -45,8 +43,8 @@ jobs:
 
       - name: Process multiple_branch.json
         run: |
-          if [ -f ${{ env.MULTIPLE_BRANCH_PATH}} ]; then
-            jq '.some_key' ${{ env.MULTIPLE_BRANCH_PATH}}
+          if [ -f "multiple_branch.json" ]; then
+            jq '.some_key' multiple_branch.json
           else
             echo "multiple_branch.json 文件不存在，请检查。"
           fi
@@ -54,7 +52,7 @@ jobs:
       - name: Read Cache Branch
         id: read-cache-branch
         run: |
-          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.MULTIPLE_BRANCH_PATH}})
+          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' multiple_branch.json)
           if [ -n "$branch_info" ]; then
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
             echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
@@ -73,7 +71,7 @@ jobs:
           git push -u origin $branch_name
           echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
           BRANCH_INFO='{ "branch_name": $branch_name, "time": $time, "timestamp": $timestamp}'
-          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' ${{ env.MULTIPLE_BRANCH_PATH}} > temp.json && mv temp.json ${{ env.MULTIPLE_BRANCH_PATH}}
+          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' multiple_branch.json > temp.json && mv temp.json multiple_branch.json
 
 
 
