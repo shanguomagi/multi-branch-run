@@ -45,6 +45,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set Git user information
+        run: |
+          git config --global user.email "shanguo@magicloud.io"
+          git config --global user.name "shanguo"
+
       - name: Checkout temporary branch
         run: |
           git fetch
