@@ -14,6 +14,8 @@ on:
 
 jobs:
   create-tmp-branches:
+    outputs:
+      TMP_BRANCH_NAME: ${{ steps.generate-branch-name.outputs.branch_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,17 +34,16 @@ jobs:
           git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
 
   merge-branches:
+    needs: [ create-tmp-branches ]
+    env:
+      TMP_BRANCH_NAME: ${{ needs.create-tmp-branches.outputs.TMP_BRANCH_NAME }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Create temporary branch
         run: |
           git fetch
-          git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
+          git checkout -b ${{ env.TMP_BRANCH_NAME }}
           git pull
 
       - name: Merge selected branches
