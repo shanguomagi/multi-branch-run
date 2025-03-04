@@ -54,10 +54,12 @@ jobs:
         id: merge
         continue-on-error: true
         run: |
+          git branch
           branches="${{ github.event.inputs.branches }}"
           for branch in $branches; do
                echo "origin/$branch"
           done
+          git merge --no-ff origin/aaa
 #            if ! git merge --no-ff origin/$branch; then
 #              echo "Merge conflict detected when merging branch $branch "
 #              echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}"
