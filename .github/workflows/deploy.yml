@@ -58,6 +58,11 @@ jobs:
           for branch in $branches; do
             if ! git merge --no-ff $branch; then
               echo "Merge conflict detected when merging branch $branch "
+              echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}"
+              COMMIT_HASH=$(git rev-parse $branch)
+              echo "git merge --no-ff $COMMIT_HASH"
+              echo "You should resolve conflicts and commit and push with below step:"
+              echo "git push origin ${{ env.TMP_BRANCH_NAME }}"
               exit 1
             fi
           done
