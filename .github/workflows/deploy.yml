@@ -35,6 +35,14 @@ jobs:
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
 
+      - name: Process multiple_branch.json
+        run: |
+          if [ -f "multiple_branch.json" ]; then
+            jq '.some_key' multiple_branch.json
+          else
+            echo "multiple_branch.json 文件不存在，请检查。"
+          fi
+
       - name: Read Cache Branch
         id: read-cache-branch
         run: |
