@@ -18,7 +18,7 @@ jobs:
   create-tmp-branches:
     outputs:
       TMP_BRANCH_NAME: ${{ steps.generate-branch-name.outputs.branch_name }}
-      BRANCH_JSON: ./.github/workflows/multiple_branch.json
+      BRANCH_JSON: '.github/workflows/multiple_branch.json'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
