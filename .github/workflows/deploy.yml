@@ -25,6 +25,33 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: data-artifact
+
+      - name: Read data from file
+        run: |
+          if [ -f "multiple_branch.json" ]; then
+            echo "multiple_branch.json 文件存在。"
+            data=$(cat multiple_branch.json)
+            echo "Previous multiple_branch_data: $data"
+          else
+            echo "multiple_branch.json 文件不存在，请检查。"
+          fi
+      - name: Generate data
+        id: generate
+        run: |
+          data='{ "branch_name": "test" }'
+          echo "Generated data: $data"
+          echo "$data" > multiple_branch.json
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: data-artifact
+          path: multiple_branch.json
+
       - name: Branches sort name key
         id: branches-sort
         run: |
@@ -41,42 +68,37 @@ jobs:
           echo "文件列表:"
           ls -l
 
-      - name: Process multiple_branch.json
-        run: |
-          if [ -f "multiple_branch.json" ]; then
-            jq '.some_key' multiple_branch.json
-          else
-            echo "multiple_branch.json 文件不存在，请检查。"
-          fi
+#      - name: Process multiple_branch.json
+#        run: |
+#          if [ -f "multiple_branch.json" ]; then
+#            jq '.some_key' multiple_branch.json
+#          else
+#            echo "multiple_branch.json 文件不存在，请检查。"
+#          fi
 
-      - name: Read Cache Branch
-        id: read-cache-branch
-        run: |
-          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' multiple_branch.json)
-          if [ -n "$branch_info" ]; then
-            branch_name=$(echo "$branch_info" | jq -r '.branch_name')
-            echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
-          else
-            echo "branch_name=" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Generate temporary branch name
-        id: generate-branch-name
-        if: steps.read-cache.outputs. branch_name == ''
-        run: |
-          timestamp=$(date +%s)
-          time=$(date +%Y-%m-%d\ %H:%M:%S)
-          branch_name=tmp/tmp_${timestamp}
-          git checkout -b $branch_name
-          git push -u origin $branch_name
-          echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
-          BRANCH_INFO='{ "branch_name": $branch_name, "time": $time, "timestamp": $timestamp}'
-          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' multiple_branch.json > temp.json && mv temp.json multiple_branch.json
-
-
-
-
-          jq --arg new_name "$NEW_NAME" '.name = $new_name' cache.json > temp.json && mv temp.json cache.json
+#      - name: Read Cache Branch
+#        id: read-cache
+#        run: |
+#          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' multiple_branch.json)
+#          if [ -n "$branch_info" ]; then
+#            branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+#            echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+#          else
+#            echo "branch_name=" >> $GITHUB_OUTPUT
+#          fi
+#
+#      - name: Generate temporary branch name
+#        id: generate-branch-name
+#        if: steps.read-cache.outputs. branch_name == ''
+#        run: |
+#          timestamp=$(date +%s)
+#          time=$(date +%Y-%m-%d\ %H:%M:%S)
+#          branch_name=tmp/tmp_${timestamp}
+#          git checkout -b $branch_name
+#          git push -u origin $branch_name
+#          echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+#          BRANCH_INFO='{ "branch_name": $branch_name, "time": $time, "timestamp": $timestamp }'
+#          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' multiple_branch.json > temp.json && mv temp.json multiple_branch.json
 
 
       - name: Create temporary branch
