@@ -80,6 +80,8 @@ jobs:
           jq --arg key "$asc_branch_name" --argjson new_info "$BRANCH_INFO" '.[ $key ] = $new_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
           echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
           git push
+          data=$(cat ${{ env.BRANCH_JSON }})
+          echo "Previous multiple_branch_data: $data"
 #          git checkout -b $branch_name
 #          git push -u origin $branch_name
 
