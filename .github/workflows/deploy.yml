@@ -21,7 +21,6 @@ jobs:
     env:
       BRANCH_JSON: './multiple_branch.json'
       ENV: ${{ github.event.inputs.environment }}
-    if: github.event.inputs.branches != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -30,16 +29,19 @@ jobs:
           fetch-depth: 0
 
       - name: Set Git user information
+        if: github.event.inputs.branches != ''
         run: |
           git config --global user.email "auto_branch@magicloud.io"
           git config --global user.name "auto_branch"
 
       - name: Git checkout multiple-branch-info
+        if: github.event.inputs.branches != ''
         run: |
           git checkout -b multiple-branch-info origin/multiple-branch-info
           git branch
 
       - name: Read data from file
+        if: github.event.inputs.branches != ''
         run: |
           if [ -f "${{ env.BRANCH_JSON }}" ]; then
             echo "multiple_branch.json exist。"
@@ -50,6 +52,7 @@ jobs:
           fi
 
       - name: Branches sort name key
+        if: github.event.inputs.branches != ''
         id: branches-sort
         run: |
           branches="${{ github.event.inputs.branches }}"
@@ -61,6 +64,7 @@ jobs:
 
 
       - name: Read Cache Branch
+        if: github.event.inputs.branches != ''
         id: read-cache
         run: |
           branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.BRANCH_JSON }})
@@ -76,7 +80,7 @@ jobs:
 
       - name: Generate temporary branch name
         id: generate-branch-name
-        if: steps.read-cache.outputs.branch_name == ''
+        if: steps.read-cache.outputs.branch_name == '' && github.event.inputs.branches != ''
         run: |
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
@@ -91,12 +95,13 @@ jobs:
           git push
 
       - name: Create temporary branch
-        if: steps.generate-branch-name.outputs.new_branch_name != ''
+        if: steps.generate-branch-name.outputs.new_branch_name != '' && github.event.inputs.branches != ''
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }} origin/${GITHUB_REF#refs/heads/}
           git push -u origin ${{ steps.generate-branch-name.outputs.new_branch_name }}
 
       - name: Final branch name
+        if: github.event.inputs.branches != ''
         id: final-branch-name
         run: |
           if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
@@ -110,9 +115,10 @@ jobs:
 
   merge-branches:
     needs: [ multiple-branches ]
+    outputs:
+      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
     env:
       TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
-    if: github.event.inputs.branches != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -121,16 +127,19 @@ jobs:
           fetch-depth: 0
 
       - name: Set Git user information
+        if: github.event.inputs.branches != ''
         run: |
           git config --global user.email "auto_branch@magicloud.io"
           git config --global user.name "auto_branch"
 
       - name: Checkout temporary branch
+        if: github.event.inputs.branches != ''
         run: |
           git fetch origin
           git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}
 
       - name: Merge selected branches
+        if: github.event.inputs.branches != ''
         id: merge
         continue-on-error: true
         run: |
@@ -145,15 +154,13 @@ jobs:
             fi
           done
 
-      - name: Check status
-        run: git status
-
       - name: Push temporary branch
+        if: github.event.inputs.branches != ''
         run: |
           git push -u origin ${{ env.TMP_BRANCH_NAME }}
 
       - name: Check for merge conflicts
-        if: steps.merge.outcome == 'failure'
+        if: steps.merge.outcome == 'failure' && github.event.inputs.branches != ''
         run: |
           echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
           echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}"
@@ -163,9 +170,9 @@ jobs:
           exit 1
 
   build-run:
-    needs: [ multiple-branches ]
+    needs: [ merge-branches ]
     env:
-      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
+      TMP_BRANCH_NAME: ${{ needs.merge-branches.outputs.TMP_BRANCH_NAME }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
