@@ -27,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Git
+      - name: Git checkout multiple-branch-info
         run: |
           git checkout -b multiple-branch-info origin/multiple-branch-info
           git branch
@@ -36,7 +36,7 @@ jobs:
         run: |
           if [ -f "${{ env.BRANCH_JSON }}" ]; then
             echo "multiple_branch.json 文件存在。"
-            data=$(cat multiple_branch.json)
+            data=$(cat ${{ env.BRANCH_JSON }})
             echo "Previous multiple_branch_data: $data"
           else
             echo "multiple_branch.json 文件不存在，请检查。"
@@ -63,19 +63,19 @@ jobs:
           else
             echo "branch_name=" >> $GITHUB_OUTPUT
           fi
-#
-#      - name: Generate temporary branch name
-#        id: generate-branch-name
-#        if: steps.read-cache.outputs. branch_name == ''
-#        run: |
-#          timestamp=$(date +%s)
-#          time=$(date +%Y-%m-%d\ %H:%M:%S)
-#          branch_name=tmp/tmp_${timestamp}
-#          git checkout -b $branch_name
-#          git push -u origin $branch_name
-#          echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
-#          BRANCH_INFO='{ "branch_name": $branch_name, "time": $time, "timestamp": $timestamp }'
-#          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' multiple_branch.json > temp.json && mv temp.json multiple_branch.json
+
+      - name: Generate temporary branch name
+        id: generate-branch-name
+        if: steps.read-cache.outputs. branch_name == ''
+        run: |
+          timestamp=$(date +%s)
+          time=$(date +%Y-%m-%d\ %H:%M:%S)
+          branch_name=tmp/tmp_${timestamp}
+          git checkout -b $branch_name
+          git push -u origin $branch_name
+          echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+          BRANCH_INFO='{ "branch_name": $branch_name, "time": $time, "timestamp": $timestamp }'
+          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' multiple_branch.json > temp.json && mv temp.json multiple_branch.json
 
 
       - name: Create temporary branch
