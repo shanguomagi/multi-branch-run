@@ -25,6 +25,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Git
+        run: |
+          git branch
+
 #      - name: Generate data
 #        id: generate
 #        run: |
