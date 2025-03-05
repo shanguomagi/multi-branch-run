@@ -49,9 +49,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: cdata.txt
-          key: cdata
+          key: cdata-${{ runner.os }}-${{ hashFiles('cdata.txt') }}
           restore-keys: |
-            cdata
+            cdata-${{ runner.os }}-
+            cdata-
 
 #      - name: Initialize data if cache miss
 #        if: steps.cache-data.outputs.cache-hit != 'true'
@@ -76,7 +77,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: cdata.txt
-          key: cdata
+          key: cdata-${{ runner.os }}-${{ hashFiles('cdata.txt') }}
 
 
 #      - name: Download Artifact
