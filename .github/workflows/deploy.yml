@@ -57,7 +57,17 @@ jobs:
         run: |
           branches="${{ github.event.inputs.branches }}"
           IFS=' ' read -r -a branch_array <<< "$branches"
-          sorted_branches=($(printf "%s\n" "${branch_array[@]}" | sort))
+          declare -A unique_branches
+          for branch in "${branch_array[@]}"; do
+            unique_branches["$branch"]=1
+          done
+          unique_branch_array=()
+          for branch in "${!unique_branches[@]}"; do
+            unique_branch_array+=("$branch")
+          done
+        
+          sorted_branches=($(printf "%s\n" "${unique_branch_array[@]}" | sort))
+          
           asc_branch_name=$(IFS=_; echo "${sorted_branches[*]}")
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
