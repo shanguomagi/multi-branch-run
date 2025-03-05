@@ -97,13 +97,12 @@ jobs:
       - name: Final branch name
         id: final-branch-name
         run: |
-          echo "${{ steps.generate-branch-name.outputs.new_branch_name }}"
-          if [ ${{ steps.generate-branch-name.outputs.new_branch_name }} == '' ]; then
-            echo "old branch name"
-            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "new branchname"
+          if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
+            echo "new branchname = ${{ steps.generate-branch-name.outputs.new_branch_name }}"
             echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "old branch name = ${{ steps.read-cache.outputs.branch_name }}"
+            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
           fi
 
 
