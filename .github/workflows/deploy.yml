@@ -15,9 +15,9 @@ on:
         default: dev
 
 jobs:
-  create-tmp-branches:
+  multiple-branches:
     outputs:
-      TMP_BRANCH_NAME: ${{ steps.generate-branch-name.outputs.branch_name }}
+      TMP_BRANCH_NAME: ${{ steps.final-branch-name.outputs.final_branch_name }}
     env:
       BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
@@ -40,11 +40,11 @@ jobs:
       - name: Read data from file
         run: |
           if [ -f "${{ env.BRANCH_JSON }}" ]; then
-            echo "multiple_branch.json 文件存在。"
+            echo "multiple_branch.json exist。"
             data=$(cat ${{ env.BRANCH_JSON }})
             echo "Previous multiple_branch_data: $data"
           else
-            echo "multiple_branch.json 文件不存在，请检查。"
+            echo "multiple_branch.json not exist, please check it"
           fi
 
       - name: Branches sort name key
@@ -83,24 +83,29 @@ jobs:
           BRANCH_INFO="{ \"branch_name\": \"${branch_name}\", \"time\": \"${time}\", \"timestamp\": ${timestamp} }"
           echo "$BRANCH_INFO"
           jq --arg key "$asc_branch_name" --argjson new_info "$BRANCH_INFO" '.[ $key ] = $new_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
-          echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+          echo "new_branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
           git commit -a -m "Tmp Branch $branch_name"
           git push
-          data=$(cat ${{ env.BRANCH_JSON }})
-          echo "Previous multiple_branch_data: $data"
-#          git checkout -b $branch_name
-#          git push -u origin $branch_name
 
-#      - name: Create temporary branch
-#        if: steps.read-cache.outputs.branch_name == ''
-#        run: |
-#          git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
-#          git push -u origin ${{ steps.generate-branch-name.outputs.branch_name }}
+      - name: Create temporary branch
+        if: steps.generate-branch-name.outputs.new_branch_name != ''
+        run: |
+          git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }}
+          git push -u origin ${{ steps.generate-branch-name.outputs.new_branch_name }}
+
+      - name: Final branch name
+        id: final-branch-name
+        run: |
+          if [ ${{ steps.generate-branch-name.outputs.new_branch_name }} == '' ]; then
+            echo "final_branch_name=t${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "final_branch_name=t${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
+          fi
 
   merge-branches:
-    needs: [ create-tmp-branches ]
+    needs: [ multiple-branches ]
     env:
-      TMP_BRANCH_NAME: ${{ needs.create-tmp-branches.outputs.TMP_BRANCH_NAME }}
+      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
