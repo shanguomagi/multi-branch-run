@@ -45,6 +45,31 @@ jobs:
 #          name: bdata
 #          path: bdata.txt
 
+      - name: Generate data
+        run: |
+          echo '{ "branch_name": "test" }' > bdata.txt
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.0
+          release_name: Release v1.0.0
+          body: |
+            This is a release with data.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bdata.txt
+          asset_name: bdata.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
