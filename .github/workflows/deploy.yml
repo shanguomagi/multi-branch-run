@@ -29,8 +29,8 @@ jobs:
 
       - name: Set Git user information
         run: |
-          git config --global user.email "shanguo@magicloud.io"
-          git config --global user.name "shanguo"
+          git config --global user.email "auto_branch@magicloud.io"
+          git config --global user.name "auto_branch"
 #      - name: Git checkout multiple-branch-info
 #        run: |
 #          git checkout -b multiple-branch-info origin/multiple-branch-info
@@ -109,8 +109,8 @@ jobs:
 
       - name: Set Git user information
         run: |
-          git config --global user.email "shanguo@magicloud.io"
-          git config --global user.name "shanguo"
+          git config --global user.email "auto_branch@magicloud.io"
+          git config --global user.name "auto_branch"
 
       - name: Checkout temporary branch
         run: |
