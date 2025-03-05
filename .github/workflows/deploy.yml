@@ -63,10 +63,11 @@ jobs:
           else
             echo "branch_name=" >> $GITHUB_OUTPUT
           fi
+          echo "$branch_name"
 
       - name: Generate temporary branch name
         id: generate-branch-name
-        if: steps.read-cache.outputs. branch_name == ''
+        if: steps.read-cache.outputs.branch_name == ''
         run: |
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
@@ -79,7 +80,7 @@ jobs:
 
 
       - name: Create temporary branch
-        if: steps.read-cache.outputs. branch_name == ''
+        if: steps.read-cache.outputs.branch_name == ''
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
           git push -u origin ${{ steps.generate-branch-name.outputs.branch_name }}
