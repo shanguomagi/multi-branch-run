@@ -170,7 +170,7 @@ jobs:
 
       - name: Check Out Target Branch
         run: |
-          if [ -z ${{ github.event.inputs.branches }} ]; then
+          if [ -z "${{ github.event.inputs.branches }}" ]; then
             git_hash=$(git rev-parse --short HEAD)
             echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
             echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
