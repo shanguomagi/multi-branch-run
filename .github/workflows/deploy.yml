@@ -3,7 +3,7 @@ name: run
 on:
   workflow_dispatch:
     inputs:
-      branches:
+      multi-branch:
         description: 'Branches to merge (separated by space)'
         required: true
         type: string
@@ -20,6 +20,8 @@ jobs:
       TMP_BRANCH_NAME: ${{ steps.final-branch-name.outputs.final_branch_name }}
     env:
       BRANCH_JSON: './multiple_branch.json'
+      ENV: ${{ github.event.inputs.environment }}
+    if: github.event.inputs.multi-branch != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -57,14 +59,12 @@ jobs:
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
 
-
       - name: Read Cache Branch
         id: read-cache
         run: |
           branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.BRANCH_JSON }})
           if [ -n "$branch_info" ]; then
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
-            echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
           else
             echo "branch_name=''" >> $GITHUB_OUTPUT
@@ -91,25 +91,26 @@ jobs:
       - name: Create temporary branch
         if: steps.generate-branch-name.outputs.new_branch_name != ''
         run: |
-          git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }} origin/main
+          git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }} origin/${GITHUB_REF#refs/heads/}
           git push -u origin ${{ steps.generate-branch-name.outputs.new_branch_name }}
 
       - name: Final branch name
         id: final-branch-name
         run: |
-          if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
-            echo "new branchname = ${{ steps.generate-branch-name.outputs.new_branch_name }}"
-            echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "old branch name = ${{ steps.read-cache.outputs.branch_name }}"
+          echo "${{ steps.generate-branch-name.outputs.new_branch_name }}"
+          if [ ${{ steps.generate-branch-name.outputs.new_branch_name }} == '' ]; then
+            echo "old branch name"
             echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "new branchname"
+            echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
           fi
-
 
   merge-branches:
     needs: [ multiple-branches ]
     env:
       TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
+    if: github.event.inputs.multi-branch != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -142,9 +143,6 @@ jobs:
             fi
           done
 
-      - name: Check status
-        run: git status
-
       - name: Push temporary branch
         run: |
           git push -u origin ${{ env.TMP_BRANCH_NAME }}
@@ -159,3 +157,27 @@ jobs:
           echo "git push origin ${{ env.TMP_BRANCH_NAME }}"           
           exit 1
 
+  build-run:
+    needs: [ multiple-branches ]
+    env:
+      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check Out Target Branch
+        run: |
+          if [ ${{ github.event.inputs.multi-branch }} == '' ]; then
+            git_hash=$(git rev-parse --short HEAD)
+            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
+            echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+            echo "one branch ${GITHUB_REF#refs/heads/}"
+          else
+            git_hash=$(git rev-parse --short ${{ env.TMP_BRANCH_NAME }})
+            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
+            echo "GIT_BRANCH=${{ env.TMP_BRANCH_NAME }}" >> $GITHUB_ENV
+            echo "multiple branch ${{ env.TMP_BRANCH_NAME }}"
+          fi
