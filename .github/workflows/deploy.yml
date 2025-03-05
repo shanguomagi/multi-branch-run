@@ -18,6 +18,7 @@ jobs:
   create-tmp-branches:
     outputs:
       TMP_BRANCH_NAME: ${{ steps.generate-branch-name.outputs.branch_name }}
+      BRANCH_JSON: ./.github/workflows/multiple_branch.json
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -27,67 +28,18 @@ jobs:
 
       - name: Git
         run: |
+          git checkout -b multiple-branch-info origin/multiple-branch-info
           git branch
 
-#      - name: Generate data
-#        id: generate
-#        run: |
-#          data='{ "branch_name": "test222" }'
-#          echo "Generated data: $data"
-#          echo "$data" > bdata.txt
-#
-#      - name: Check generated file
-#        run: ls -l bdata.txt
-#
-#      - name: Upload Artifact
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: bdata
-#          path: bdata.txt
-
-      - name: Generate data
+      - name: Read data from file
         run: |
-          echo '{ "branch_name": "test" }' > bdata.txt
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
-          body: |
-            This is a release with data.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Asset
-        uses: softprops/action-gh-release@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: bdata.txt
-          asset_name: bdata.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bdata
-      - name: Display structure of downloaded files
-        run: ls -R
-
-#      - name: Read data from file
-#        run: |
-#          if [ -f "multiple_branch.json" ]; then
-#            echo "multiple_branch.json 文件存在。"
-#            data=$(cat multiple_branch.json)
-#            echo "Previous multiple_branch_data: $data"
-#          else
-#            echo "multiple_branch.json 文件不存在，请检查。"
-#          fi
-#
-#
+          if [ -f "${{ env.BRANCH_JSON }}" ]; then
+            echo "multiple_branch.json 文件存在。"
+            data=$(cat multiple_branch.json)
+            echo "Previous multiple_branch_data: $data"
+          else
+            echo "multiple_branch.json 文件不存在，请检查。"
+          fi
 
       - name: Branches sort name key
         id: branches-sort
@@ -99,30 +51,17 @@ jobs:
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
 
-      - name: Debug output
+
+      - name: Read Cache Branch
+        id: read-cache
         run: |
-          echo "当前工作目录: $(pwd)"
-          echo "文件列表:"
-          ls -l
-
-#      - name: Process multiple_branch.json
-#        run: |
-#          if [ -f "multiple_branch.json" ]; then
-#            jq '.some_key' multiple_branch.json
-#          else
-#            echo "multiple_branch.json 文件不存在，请检查。"
-#          fi
-
-#      - name: Read Cache Branch
-#        id: read-cache
-#        run: |
-#          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' multiple_branch.json)
-#          if [ -n "$branch_info" ]; then
-#            branch_name=$(echo "$branch_info" | jq -r '.branch_name')
-#            echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
-#          else
-#            echo "branch_name=" >> $GITHUB_OUTPUT
-#          fi
+          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}'${{ env.BRANCH_JSON }})
+          if [ -n "$branch_info" ]; then
+            branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+            echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch_name=" >> $GITHUB_OUTPUT
+          fi
 #
 #      - name: Generate temporary branch name
 #        id: generate-branch-name
