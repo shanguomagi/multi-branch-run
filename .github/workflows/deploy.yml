@@ -25,12 +25,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Generate data
+        id: generate
+        run: |
+          data='{ "branch_name": "test" }'
+          echo "Generated data: $data"
+          echo "$data" > data.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mydata
+          path: data.txt
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: tmp-branch-artifact
-          path: multiple_branch.json
+          name: mydata
+          path: data.txt
       - name: Display structure of downloaded files
         run: ls -R
 
@@ -44,18 +56,7 @@ jobs:
             echo "multiple_branch.json 文件不存在，请检查。"
           fi
 
-      - name: Generate data
-        id: generate
-        run: |
-          data='{ "branch_name": "test" }'
-          echo "Generated data: $data"
-          echo "$data" > multiple_branch.json
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tmp-branch-artifact
-          path: multiple_branch.json
+     
 
       - name: Branches sort name key
         id: branches-sort
