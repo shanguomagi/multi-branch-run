@@ -38,27 +38,44 @@ jobs:
 #          name: bdata
 #          path: bdata.txt
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bdata
-          path: bdata.txt
-          retry-attempts: 10
-          retry-delay: 30s
-      - name: Display structure of downloaded files
-        run: ls -R
-
-      - name: Read data from file
+      - name: Write data to a file
         run: |
-          if [ -f "multiple_branch.json" ]; then
-            echo "multiple_branch.json 文件存在。"
-            data=$(cat multiple_branch.json)
-            echo "Previous multiple_branch_data: $data"
-          else
-            echo "multiple_branch.json 文件不存在，请检查。"
-          fi
+          echo "This is some sample data." > cdata.txt
+          echo "Another line of data." >> cdata.txt
 
-     
+      - name: Cache the data file
+        id: cache-data
+        uses: actions/cache@v4
+        with:
+          path: cdata.txt
+          key: cdata
+
+      - name: Read data from the cached file
+        if: steps.cache-data.outputs.cache-hit == 'true'
+        run: |
+          cat cdata.txt
+
+#      - name: Download Artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: bdata
+#          path: bdata.txt
+#          retry-attempts: 10
+#          retry-delay: 30s
+#      - name: Display structure of downloaded files
+#        run: ls -R
+
+#      - name: Read data from file
+#        run: |
+#          if [ -f "multiple_branch.json" ]; then
+#            echo "multiple_branch.json 文件存在。"
+#            data=$(cat multiple_branch.json)
+#            echo "Previous multiple_branch_data: $data"
+#          else
+#            echo "multiple_branch.json 文件不存在，请检查。"
+#          fi
+#
+#
 
       - name: Branches sort name key
         id: branches-sort
