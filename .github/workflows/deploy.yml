@@ -27,10 +27,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Git checkout multiple-branch-info
-        run: |
-          git checkout -b multiple-branch-info origin/multiple-branch-info
-          git branch
+#      - name: Git checkout multiple-branch-info
+#        run: |
+#          git checkout -b multiple-branch-info origin/multiple-branch-info
+#          git branch
 
       - name: Read data from file
         run: |
@@ -59,7 +59,7 @@ jobs:
           branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.BRANCH_JSON }})
           if [ -n "$branch_info" ]; then
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
-            echo 'find branch_info $branch_info $branch_name'
+            echo "find branch_info $branch_info $branch_name"
           else
             echo "branch_name=''" >> $GITHUB_OUTPUT
             echo 'not find branch_info'
@@ -73,18 +73,18 @@ jobs:
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
           branch_name=tmp/tmp_${timestamp}
-          git checkout -b $branch_name
-          git push -u origin $branch_name
           echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
-          BRANCH_INFO='{ "branch_name": $branch_name, "time": $time, "timestamp": $timestamp }'
-          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' multiple_branch.json > temp.json && mv temp.json multiple_branch.json
+          BRANCH_INFO='{ "branch_name": "$branch_name", "time": "time", "timestamp": "timestamp" }'
+          echo "$BRANCH_INFO"
+#          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
+#          git checkout -b $branch_name
+#          git push -u origin $branch_name
 
-
-      - name: Create temporary branch
-        if: steps.read-cache.outputs.branch_name == ''
-        run: |
-          git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
-          git push -u origin ${{ steps.generate-branch-name.outputs.branch_name }}
+#      - name: Create temporary branch
+#        if: steps.read-cache.outputs.branch_name == ''
+#        run: |
+#          git checkout -b ${{ steps.generate-branch-name.outputs.branch_name }}
+#          git push -u origin ${{ steps.generate-branch-name.outputs.branch_name }}
 
   merge-branches:
     needs: [ create-tmp-branches ]
@@ -124,7 +124,7 @@ jobs:
 
       - name: Check status
         run: git status
-        
+
       - name: Push temporary branch
         run: |
           git push -u origin ${{ env.TMP_BRANCH_NAME }}
