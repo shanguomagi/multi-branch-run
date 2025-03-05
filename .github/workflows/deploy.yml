@@ -73,11 +73,17 @@ jobs:
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
           branch_name=tmp/tmp_${timestamp}
+          asc_branch_name=${{ steps.branches-sort.outputs.asc_branch_name }}
           echo "${branch_name}"
           echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
           BRANCH_INFO="{ \"branch_name\": \"${branch_name}\", \"time\": \"${time}\", \"timestamp\": ${timestamp} }"
           echo "$BRANCH_INFO"
-          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
+          if ! echo "$BRANCH_INFO" | jq empty >/dev/null 2>&1; then
+              echo "Invalid JSON: $BRANCH_INFO"
+              exit 1
+          fi
+          jq --arg key "$asc_branch_name" --argjson new_info "$BRANCH_INFO" '.[ $key ] = $new_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
+#          jq --argjson new_branch_info "$BRANCH_INFO" '.["$asc_branch_name"] = $new_branch_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
 #          git checkout -b $branch_name
 #          git push -u origin $branch_name
 
