@@ -79,6 +79,7 @@ jobs:
           echo "$BRANCH_INFO"
           jq --arg key "$asc_branch_name" --argjson new_info "$BRANCH_INFO" '.[ $key ] = $new_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
           echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+          git commit -a -m "Tmp Branch $branch_name"
           git push
           data=$(cat ${{ env.BRANCH_JSON }})
           echo "Previous multiple_branch_data: $data"
