@@ -59,12 +59,14 @@ jobs:
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
 
+
       - name: Read Cache Branch
         id: read-cache
         run: |
           branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.BRANCH_JSON }})
           if [ -n "$branch_info" ]; then
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+            echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
           else
             echo "branch_name=''" >> $GITHUB_OUTPUT
@@ -97,14 +99,14 @@ jobs:
       - name: Final branch name
         id: final-branch-name
         run: |
-          echo "${{ steps.generate-branch-name.outputs.new_branch_name }}"
-          if [ ${{ steps.generate-branch-name.outputs.new_branch_name }} == '' ]; then
-            echo "old branch name"
-            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "new branchname"
+          if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
+            echo "new branchname = ${{ steps.generate-branch-name.outputs.new_branch_name }}"
             echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "old branch name = ${{ steps.read-cache.outputs.branch_name }}"
+            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
           fi
+
 
   merge-branches:
     needs: [ multiple-branches ]
@@ -143,6 +145,9 @@ jobs:
             fi
           done
 
+      - name: Check status
+        run: git status
+
       - name: Push temporary branch
         run: |
           git push -u origin ${{ env.TMP_BRANCH_NAME }}
@@ -170,7 +175,7 @@ jobs:
 
       - name: Check Out Target Branch
         run: |
-          if [ -z "${{ github.event.inputs.branches }}" ]; then
+          if [ "${{ github.event.inputs.branches }}" == '' ]; then
             git_hash=$(git rev-parse --short HEAD)
             echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
             echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
