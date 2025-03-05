@@ -38,22 +38,30 @@ jobs:
 #          name: bdata
 #          path: bdata.txt
 
-      - name: Write data to a file
-        run: |
-          echo "This is some sample data." > cdata.txt
-          echo "Another line of data." >> cdata.txt
-
-      - name: Cache the data file
+      - name: Restore cache
         id: cache-data
         uses: actions/cache@v4
         with:
           path: cdata.txt
           key: cdata
 
-      - name: Read data from the cached file
-        if: steps.cache-data.outputs.cache-hit == 'true'
+      - name: Initialize data if cache miss
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        run: |
+          echo "Initializing data..."
+          echo "This is the initial data." > cdata.txt
+
+      - name: Use the data
         run: |
           cat cdata.txt
+
+      - name: Save cache
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
+        with:
+          path: cdata.txt
+          key: cdata
+
 
 #      - name: Download Artifact
 #        uses: actions/download-artifact@v4
