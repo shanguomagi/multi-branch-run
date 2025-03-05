@@ -90,7 +90,7 @@ jobs:
       - name: Create temporary branch
         if: steps.generate-branch-name.outputs.new_branch_name != ''
         run: |
-          git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }}
+          git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }} origin/main
           git push -u origin ${{ steps.generate-branch-name.outputs.new_branch_name }}
 
       - name: Final branch name
