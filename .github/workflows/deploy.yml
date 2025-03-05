@@ -25,24 +25,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate data
-        id: generate
-        run: |
-          data='{ "branch_name": "test" }'
-          echo "Generated data: $data"
-          echo "$data" > bdata.txt
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: bdata
-          path: bdata.txt
+#      - name: Generate data
+#        id: generate
+#        run: |
+#          data='{ "branch_name": "test" }'
+#          echo "Generated data: $data"
+#          echo "$data" > bdata.txt
+#
+#      - name: Upload Artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: bdata
+#          path: bdata.txt
 
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: bdata
-          path: bdata.txt
       - name: Display structure of downloaded files
         run: ls -R
 
