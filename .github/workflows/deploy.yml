@@ -43,6 +43,7 @@ jobs:
 #        run: |
 #          cat cdata.txt
 
+
       - name: Restore cache
         id: cache-data
         uses: actions/cache@v4
@@ -57,6 +58,15 @@ jobs:
 #        run: |
 #          echo "Initializing data...2"
 #          echo "This is the initial data." > cdata.txt
+
+      - name: Check and create cdata.txt
+        run: |
+          if [ ! -f cdata.txt ]; then
+            echo "cdata.txt does not exist. Creating it..."
+            echo "Some initial data" > cdata.txt
+          else
+            echo "cdata.txt already exists."
+          fi
 
       - name: Use the data
         run: |
