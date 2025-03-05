@@ -97,10 +97,11 @@ jobs:
         id: final-branch-name
         run: |
           if [ ${{ steps.generate-branch-name.outputs.new_branch_name }} == '' ]; then
-            echo "final_branch_name=t${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
+            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
           else
-            echo "final_branch_name=t${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
+            echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
           fi
+
 
   merge-branches:
     needs: [ multiple-branches ]
