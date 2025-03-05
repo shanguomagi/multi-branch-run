@@ -30,19 +30,21 @@ jobs:
         run: |
           data='{ "branch_name": "test" }'
           echo "Generated data: $data"
-          echo "$data" > data.txt
+          echo "$data" > bdata.txt
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mydata
-          path: data.txt
+          name: bdata
+          path: bdata.txt
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: mydata
-          path: data.txt
+          name: bdata
+          path: bdata.txt
+          retry-attempts: 10
+          retry-delay: 30s
       - name: Display structure of downloaded files
         run: ls -R
 
