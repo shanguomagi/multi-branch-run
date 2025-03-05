@@ -30,7 +30,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tmp-branch-artifact
-          path: multiple_branch.json
       - name: Display structure of downloaded files
         run: ls -R
 
