@@ -27,6 +27,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set Git user information
+        run: |
+          git config --global user.email "shanguo@magicloud.io"
+          git config --global user.name "shanguo"
 #      - name: Git checkout multiple-branch-info
 #        run: |
 #          git checkout -b multiple-branch-info origin/multiple-branch-info
