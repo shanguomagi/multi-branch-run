@@ -74,7 +74,7 @@ jobs:
           time=$(date +%Y-%m-%d\ %H:%M:%S)
           branch_name=tmp/tmp_${timestamp}
           echo "branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
-          BRANCH_INFO='{ "branch_name": "$branch_name", "time": "time", "timestamp": "timestamp" }'
+          BRANCH_INFO='{ "branch_name": "${branch_name}", "time": "${time}", "timestamp": "${timestamp}" }'
           echo "$BRANCH_INFO"
 #          jq --argjson new_branch_info "$BRANCH_INFO" '.$asc_branch_name = $new_branch_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
 #          git checkout -b $branch_name
