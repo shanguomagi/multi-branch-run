@@ -190,6 +190,6 @@ jobs:
           else
             git_hash=$(git rev-parse --short origin/${{ env.TMP_BRANCH_NAME }})
             echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
-            echo "GIT_BRANCH=${{ env.TMP_BRANCH_NAME }}" >> $GITHUB_ENV
+            echo "GIT_BRANCH=origin/${{ env.TMP_BRANCH_NAME }}" >> $GITHUB_ENV
             echo "multiple branch ${{ env.TMP_BRANCH_NAME }}"
           fi
