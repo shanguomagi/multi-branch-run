@@ -29,21 +29,21 @@ jobs:
         run: |
           git branch
 
-      - name: Generate data
-        id: generate
-        run: |
-          data='{ "branch_name": "test222" }'
-          echo "Generated data: $data"
-          echo "$data" > bdata.txt
-
-      - name: Check generated file
-        run: ls -l bdata.txt
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bdata
-          path: bdata.txt
+#      - name: Generate data
+#        id: generate
+#        run: |
+#          data='{ "branch_name": "test222" }'
+#          echo "Generated data: $data"
+#          echo "$data" > bdata.txt
+#
+#      - name: Check generated file
+#        run: ls -l bdata.txt
+#
+#      - name: Upload Artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: bdata
+#          path: bdata.txt
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
