@@ -26,9 +26,10 @@ jobs:
           fetch-depth: 0
 
       - name: Download Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: data-artifact
+          name: tmp-branch-artifact
+          path: multiple_branch.json
 
       - name: Read data from file
         run: |
@@ -47,9 +48,9 @@ jobs:
           echo "$data" > multiple_branch.json
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: data-artifact
+          name: tmp-branch-artifact
           path: multiple_branch.json
 
       - name: Branches sort name key
