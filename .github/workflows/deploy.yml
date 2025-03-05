@@ -64,6 +64,7 @@ jobs:
           branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.BRANCH_JSON }})
           if [ -n "$branch_info" ]; then
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+            echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
           else
             echo "branch_name=''" >> $GITHUB_OUTPUT
