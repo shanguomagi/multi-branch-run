@@ -31,10 +31,11 @@ jobs:
         run: |
           git config --global user.email "auto_branch@magicloud.io"
           git config --global user.name "auto_branch"
-#      - name: Git checkout multiple-branch-info
-#        run: |
-#          git checkout -b multiple-branch-info origin/multiple-branch-info
-#          git branch
+
+      - name: Git checkout multiple-branch-info
+        run: |
+          git checkout -b multiple-branch-info origin/multiple-branch-info
+          git branch
 
       - name: Read data from file
         run: |
