@@ -31,6 +31,8 @@ jobs:
         with:
           name: tmp-branch-artifact
           path: multiple_branch.json
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Read data from file
         run: |
@@ -41,6 +43,7 @@ jobs:
           else
             echo "multiple_branch.json 文件不存在，请检查。"
           fi
+
       - name: Generate data
         id: generate
         run: |
