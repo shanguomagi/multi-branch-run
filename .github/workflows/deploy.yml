@@ -7,7 +7,7 @@ on:
         description: 'Branches to merge (separated by space)'
         required: false
         type: string
-        default: "bbb aaa ccc"
+        default: ""
       environment:
         description: 'Environment (e.g., dev, staging, prod)'
         required: true
