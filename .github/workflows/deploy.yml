@@ -3,7 +3,7 @@ name: run
 on:
   workflow_dispatch:
     inputs:
-      multi-branch:
+      branches:
         description: 'Branches to merge (separated by space)'
         required: true
         type: string
@@ -21,7 +21,7 @@ jobs:
     env:
       BRANCH_JSON: './multiple_branch.json'
       ENV: ${{ github.event.inputs.environment }}
-    if: github.event.inputs.multi-branch != ''
+    if: github.event.inputs.branches != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -110,7 +110,7 @@ jobs:
     needs: [ multiple-branches ]
     env:
       TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
-    if: github.event.inputs.multi-branch != ''
+    if: github.event.inputs.branches != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -170,7 +170,7 @@ jobs:
 
       - name: Check Out Target Branch
         run: |
-          if [ ${{ github.event.inputs.multi-branch }} == '' ]; then
+          if [ -z ${{ github.event.inputs.branches }} ]; then
             git_hash=$(git rev-parse --short HEAD)
             echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
             echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
