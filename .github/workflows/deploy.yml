@@ -38,10 +38,10 @@ jobs:
 #          name: bdata
 #          path: bdata.txt
 
-      - name: Read data from the cached file
-        if: steps.cache-data.outputs.cache-hit == 'true'
-        run: |
-          cat cdata.txt
+#      - name: Read data from the cached file
+#        if: steps.cache-data.outputs.cache-hit == 'true'
+#        run: |
+#          cat cdata.txt
 
       - name: Restore cache
         id: cache-data
@@ -50,22 +50,22 @@ jobs:
           path: cdata.txt
           key: cdata
 
-      - name: Initialize data if cache miss
-        if: steps.cache-data.outputs.cache-hit != 'true'
-        run: |
-          echo "Initializing data...2"
-          echo "This is the initial data." > cdata.txt
+#      - name: Initialize data if cache miss
+#        if: steps.cache-data.outputs.cache-hit != 'true'
+#        run: |
+#          echo "Initializing data...2"
+#          echo "This is the initial data." > cdata.txt
 
       - name: Use the data
         run: |
           cat cdata.txt
 
-      - name: Save cache
-        if: steps.cache-data.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
-        with:
-          path: cdata.txt
-          key: cdata
+#      - name: Save cache
+#        if: steps.cache-data.outputs.cache-hit != 'true'
+#        uses: actions/cache@v4
+#        with:
+#          path: cdata.txt
+#          key: cdata
 
 
 #      - name: Download Artifact
