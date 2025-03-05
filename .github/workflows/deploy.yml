@@ -25,70 +25,26 @@ jobs:
         with:
           fetch-depth: 0
 
-#      - name: Generate data
-#        id: generate
-#        run: |
-#          data='{ "branch_name": "test" }'
-#          echo "Generated data: $data"
-#          echo "$data" > bdata.txt
-#
-#      - name: Upload Artifact
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: bdata
-#          path: bdata.txt
-
-#      - name: Read data from the cached file
-#        if: steps.cache-data.outputs.cache-hit == 'true'
-#        run: |
-#          cat cdata.txt
-
-
-      - name: Restore cache
-        id: cache-data
-        uses: actions/cache@v4
-        with:
-          path: cdata.txt
-          key: cdata-${{ runner.os }}-${{ hashFiles('cdata.txt') }}
-          restore-keys: |
-            cdata-${{ runner.os }}-
-            cdata-
-
-#      - name: Initialize data if cache miss
-#        if: steps.cache-data.outputs.cache-hit != 'true'
-#        run: |
-#          echo "Initializing data...2"
-#          echo "This is the initial data." > cdata.txt
-
-      - name: Check and create cdata.txt
+      - name: Generate data
+        id: generate
         run: |
-          if [ ! -f cdata.txt ]; then
-            echo "cdata.txt does not exist. Creating it..."
-            echo "Some initial data" > cdata.txt
-          else
-            echo "cdata.txt already exists."
-          fi
+          data='{ "branch_name": "test" }'
+          echo "Generated data: $data"
+          echo "$data" > bdata.txt
 
-      - name: Use the data
-        run: |
-          cat cdata.txt
-
-      - name: Save cache
-        uses: actions/cache@v4
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
         with:
-          path: cdata.txt
-          key: cdata-${{ runner.os }}-${{ hashFiles('cdata.txt') }}
+          name: bdata
+          path: bdata.txt
 
-
-#      - name: Download Artifact
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: bdata
-#          path: bdata.txt
-#          retry-attempts: 10
-#          retry-delay: 30s
-#      - name: Display structure of downloaded files
-#        run: ls -R
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: bdata
+          path: bdata.txt
+      - name: Display structure of downloaded files
+        run: ls -R
 
 #      - name: Read data from file
 #        run: |
