@@ -49,6 +49,8 @@ jobs:
         with:
           path: cdata.txt
           key: cdata
+          restore-keys: |
+            cdata
 
 #      - name: Initialize data if cache miss
 #        if: steps.cache-data.outputs.cache-hit != 'true'
@@ -60,12 +62,11 @@ jobs:
         run: |
           cat cdata.txt
 
-#      - name: Save cache
-#        if: steps.cache-data.outputs.cache-hit != 'true'
-#        uses: actions/cache@v4
-#        with:
-#          path: cdata.txt
-#          key: cdata
+      - name: Save cache
+        uses: actions/cache@v4
+        with:
+          path: cdata.txt
+          key: cdata
 
 
 #      - name: Download Artifact
