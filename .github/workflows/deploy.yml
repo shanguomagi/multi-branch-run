@@ -184,7 +184,7 @@ jobs:
 #          exit 1
 
   build-run:
-    needs: [ multiple-branches ]
+    needs: multiple-branches
     env:
       TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.final_branch_name }}
     runs-on: ubuntu-latest
