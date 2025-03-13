@@ -7,7 +7,7 @@ on:
         description: 'To Merge Branches'
         required: false
         type: string
-      final_branch_name:
+      final-branch-name:
         description: 'tmp branch name'
         required: false
         type: string
@@ -31,7 +31,7 @@ jobs:
         if: inputs.branches != ''
         run: |
           git fetch origin
-          git checkout -b ${{ inputs.final_branch_name }} origin/${{ inputs.final_branch_name }}
+          git checkout -b ${{ inputs.final-branch-name }} origin/${{ inputs.final-branch-name }}
 
       - name: Merge selected branches
         if: inputs.branches != ''
@@ -52,14 +52,14 @@ jobs:
       - name: Push temporary branch
         if: inputs.branches != ''
         run: |
-          git push -u origin ${{ inputs.final_branch_name }}
+          git push -u origin ${{ inputs.final-branch-name }}
 
       - name: Check for merge conflicts
         if: steps.merge.outcome == 'failure' && inputs.branches != ''
         run: |
           echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
-          echo "git fetch origin; git checkout -b ${{ inputs.final_branch_name }} origin/${{ inputs.final_branch_name }}"
+          echo "git fetch origin; git checkout -b ${{ inputs.final-branch-name }} origin/${{ inputs.final-branch-name }}"
           echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
           echo "You should resolve conflicts and commit then push it."
-          echo "git push origin ${{ inputs.final_branch_name }}"
+          echo "git push origin ${{ inputs.final-branch-name }}"
           exit 1

@@ -201,10 +201,11 @@ jobs:
 
       - name: Branch Merge
         id: branch-merge
-        uses: ./.github/workflows/cache-branch.yml
+        uses: ./.github/workflows/merge-branch.yml
         with:
-          final_branch_name: ${{ steps.branch-name.outputs.final_branch_name  }}
           branches: ${{ github.event.inputs.branches  }}
+          final-branch-name: ${{ github.event.inputs.branches  }}
+
 
       - name: Check Out Target Branch
         run: |
