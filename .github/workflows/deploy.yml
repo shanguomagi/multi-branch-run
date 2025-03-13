@@ -184,8 +184,8 @@ jobs:
 #          exit 1
 
   build-run:
-    env:
-      TMP_BRANCH_NAME: ${{ needs.merge-branches.outputs.TMP_BRANCH_NAME }}
+#    env:
+#      TMP_BRANCH_NAME: ${{ needs.merge-branches.outputs.TMP_BRANCH_NAME }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
