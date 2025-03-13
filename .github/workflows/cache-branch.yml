@@ -33,10 +33,15 @@ jobs:
           git config --global user.name "auto_branch"
 
       - name: Git checkout multiple-branch-info
-        if: inputs.branches != ''
         run: |
           git checkout -b multiple-branch-info origin/multiple-branch-info
           git branch
+          if [ "${{ inputs.branches }}" == "" ]; then
+            $branch_name=''
+            jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
+            git commit -a -m "Tmp Branch $branch_name"
+            git push
+          fi
 
       - name: Read data from file
         if: inputs.branches != ''
@@ -80,6 +85,9 @@ jobs:
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
             echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
+            jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
+            git commit -a -m "Tmp Branch $branch_name"
+            git push
           else
             echo "branch_name=''" >> $GITHUB_OUTPUT
             echo 'not find branch_info'
@@ -97,7 +105,9 @@ jobs:
           echo "${branch_name}"
           BRANCH_INFO="{ \"branch_name\": \"${branch_name}\", \"time\": \"${time}\", \"timestamp\": ${timestamp} }"
           echo "$BRANCH_INFO"
-          jq --arg key "$asc_branch_name" --argjson new_info "$BRANCH_INFO" '.[ $key ] = $new_info' ${{ env.BRANCH_JSON }} > temp.json && mv temp.json ${{ env.BRANCH_JSON }}
+          jq --arg key "$asc_branch_name" --argjson new_info "$BRANCH_INFO" '.[ $key ] = $new_info' ${{ env.BRANCH_JSON }} > temp.json
+          jq --arg currnent "$asc_branch_name" '.current_branch = $currnent' temp.json > temp1.json
+          mv temp1.json ${{ env.BRANCH_JSON }}
           echo "new_branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
           git commit -a -m "Tmp Branch $branch_name"
           git push

@@ -190,20 +190,16 @@ jobs:
       TMP_BRANCH_NAME: $(cat branch_info.txt)
     runs-on: ubuntu-latest
     steps:
-      - name: Print output from Job A
-        run: |
-          echo "Received output: ${{ needs.multiple_branches.outputs.output_message }}"
-
-      - name: Branch Name job
-        id: branch-name
-        uses: ./.github/workflows/cache-branch.yml
-        with:
-          branches: ${{ github.event.inputs.branches  }}
-
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Git checkout multiple-branch-info
+        run: |
+          git checkout -b multiple-branch-info origin/multiple-branch-info
+          branch=$(jq -r '.current_branch' ${{ env.BRANCH_JSON }})
+          echo "branch=$branch"
 
       - name: Branch Merge
         id: branch-merge
