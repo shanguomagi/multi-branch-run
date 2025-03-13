@@ -12,6 +12,7 @@ jobs:
   multiple-branches:
     outputs:
       final_branch_name: "aaa ${{ steps.final-branch-name.outputs.final_branch_name }}"
+      output_message: "out ${{ steps.msg.outputs.output_message }}"
     env:
       BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
@@ -22,6 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set output message
+        id: msg
         run: echo "output_message=${{ inputs.branches }} from Job A" >> $GITHUB_OUTPUT
 
       - name: Set Git user information
