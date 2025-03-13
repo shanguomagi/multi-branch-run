@@ -20,11 +20,7 @@ jobs:
     with:
       branches: ${{ github.event.inputs.branches  }}
     outputs:
-      TMP_BRANCH_NAME: ${{ steps.final-branch-name.outputs.TMP_BRANCH_NAME }}
-    steps:
-      - name: Final branch name
-        id: final-branch-name
-        uses: ./.github/workflows/cache-branch.yml
+      TMP_BRANCH_NAME: ${{ jobs.multiple-branches.outputs.TMP_BRANCH_NAME }}
 
 #    env:
 #      BRANCH_JSON: './multiple_branch.json'
