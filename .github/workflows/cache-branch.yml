@@ -117,12 +117,14 @@ jobs:
       - name: Final branch name
         id: final-branch-name
         run: |
-          if [ ${{ inputs.branches }} == '' ]; then
+          if [ "${{ inputs.branches }}" == '' ]; then
             echo "not need merge"
             echo "final_branch_name=" >> "$GITHUB_OUTPUT"
             echo "${{ env.final_branch_name }}" > branch_info.txt
+            echo "txt=$(cat branch_info.txt)"
           else
             echo "branch name: ${{ env.final_branch_name }}"
             echo "final_branch_name=${{ env.final_branch_name }}" >> "$GITHUB_OUTPUT"
             echo "${{ env.final_branch_name }}" > branch_info.txt
+            echo "txt=$(cat branch_info.txt)"
           fi
