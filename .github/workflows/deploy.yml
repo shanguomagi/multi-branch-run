@@ -183,6 +183,26 @@ jobs:
 #          echo "You should resolve conflicts and commit then push it."
 #          echo "git push origin ${{ env.TMP_BRANCH_NAME }}"
 #          exit 1
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Write commit hash to file
+        run: echo "${GITHUB_SHA}" > commit_hash.txt
+
+  use-env:
+    runs-on: ubuntu-latest
+    needs: set-env
+    steps:
+      - name: Checkout code again
+        uses: actions/checkout@v3
+
+      - name: Read commit hash from file
+        run: |
+          COMMIT_HASH=$(cat commit_hash.txt)
+          echo "The commit hash is: $COMMIT_HASH"
 
   build-run:
     needs: multiple-branches
