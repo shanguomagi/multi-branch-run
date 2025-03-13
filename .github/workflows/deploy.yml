@@ -191,7 +191,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print output from Job A
-        run:
+        run: |
           echo "Received output: $OUTPUT_MESSAGE"
         env:
           OUTPUT_MESSAGE: ${{ secrets.OUTPUT_MESSAGE }}  # 读取环境变量
