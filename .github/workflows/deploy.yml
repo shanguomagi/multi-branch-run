@@ -14,6 +14,7 @@ on:
         type: string
         default: dev
 
+
 jobs:
   multiple-branches:
     uses: ./.github/workflows/cache-branch.yml
@@ -186,7 +187,7 @@ jobs:
   build-run:
     needs: multiple-branches
     env:
-      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.final_branch_name }}
+      TMP_BRANCH_NAME: $(cat branch_info.txt)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -201,7 +202,8 @@ jobs:
 #          branches: ${{ github.event.inputs.branches  }}
       - name: Branch name
         run: |
-          echo "name=${{env.TMP_BRANCH_NAME}}"
+          X=$(cat commit_hash.txt)
+          echo "name=${{env.TMP_BRANCH_NAME}} x=X"
 
       - name: Branch Merge
         id: branch-merge
