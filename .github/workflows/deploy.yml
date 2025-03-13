@@ -16,7 +16,7 @@ on:
 
 jobs:
   multiple-branches:
-    uses: ./branch/cache-branch.ymal
+    uses: ./.github/workflows/branch/cache-branch.yml
     with:
       branches: ${{ github.event.inputs.branches  }}
   #    outputs:
