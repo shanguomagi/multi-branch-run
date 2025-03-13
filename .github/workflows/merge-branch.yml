@@ -1,0 +1,65 @@
+name: Merge Branches
+
+on:
+  workflow_call:
+    inputs:
+      branches:
+        description: 'To Merge Branches'
+        required: false
+        type: string
+      final_branch_name:
+        description: 'tmp branch name'
+        required: false
+        type: string
+
+jobs:
+  merge-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set Git user information
+        if: inputs.branches != ''
+        run: |
+          git config --global user.email "auto_branch@magicloud.io"
+          git config --global user.name "auto_branch"
+
+      - name: Checkout temporary branch
+        if: inputs.branches != ''
+        run: |
+          git fetch origin
+          git checkout -b ${{ inputs.final_branch_name }} origin/${{ inputs.final_branch_name }}
+
+      - name: Merge selected branches
+        if: inputs.branches != ''
+        id: merge
+        continue-on-error: true
+        run: |
+          git branch
+          branches="${{ inputs.branches }}"
+          for branch in $branches; do
+            if ! git merge --no-ff origin/$branch; then
+              echo "Merge conflict detected when merging branch origin/$branch "
+              COMMIT_HASH=$(git rev-parse origin/$branch)
+              echo "CONFLICT_BRANCH_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+              exit 1
+            fi
+          done
+
+      - name: Push temporary branch
+        if: inputs.branches != ''
+        run: |
+          git push -u origin ${{ inputs.final_branch_name }}
+
+      - name: Check for merge conflicts
+        if: steps.merge.outcome == 'failure' && inputs.branches != ''
+        run: |
+          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
+          echo "git fetch origin; git checkout -b ${{ inputs.final_branch_name }} origin/${{ inputs.final_branch_name }}"
+          echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
+          echo "You should resolve conflicts and commit then push it."
+          echo "git push origin ${{ inputs.final_branch_name }}"
+          exit 1

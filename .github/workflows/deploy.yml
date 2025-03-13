@@ -15,12 +15,12 @@ on:
         default: dev
 
 jobs:
-  multiple-branches:
-    uses: ./.github/workflows/cache-branch.yml
-    with:
-      branches: ${{ github.event.inputs.branches  }}
-    outputs:
-      TMP_BRANCH_NAME: ${{ jobs.multiple-branches.outputs.TMP_BRANCH_NAME }}
+#  multiple-branches:
+#    uses: ./.github/workflows/cache-branch.yml
+#    with:
+#      branches: ${{ github.event.inputs.branches  }}
+#    outputs:
+#      TMP_BRANCH_NAME: ${{ jobs.multiple-branches.outputs.TMP_BRANCH_NAME }}
 
 #    env:
 #      BRANCH_JSON: './multiple_branch.json'
@@ -127,64 +127,63 @@ jobs:
 #          fi
 
 
-  merge-branches:
-    needs: [ multiple-branches ]
-    outputs:
-      FINAL_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
-    env:
-      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set Git user information
-        if: github.event.inputs.branches != ''
-        run: |
-          git config --global user.email "auto_branch@magicloud.io"
-          git config --global user.name "auto_branch"
-
-      - name: Checkout temporary branch
-        if: github.event.inputs.branches != ''
-        run: |
-          git fetch origin
-          git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}
-
-      - name: Merge selected branches
-        if: github.event.inputs.branches != ''
-        id: merge
-        continue-on-error: true
-        run: |
-          git branch
-          branches="${{ github.event.inputs.branches }}"
-          for branch in $branches; do
-            if ! git merge --no-ff origin/$branch; then
-              echo "Merge conflict detected when merging branch origin/$branch "
-              COMMIT_HASH=$(git rev-parse origin/$branch)
-              echo "CONFLICT_BRANCH_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-              exit 1
-            fi
-          done
-
-      - name: Push temporary branch
-        if: github.event.inputs.branches != ''
-        run: |
-          git push -u origin ${{ env.TMP_BRANCH_NAME }}
-
-      - name: Check for merge conflicts
-        if: steps.merge.outcome == 'failure' && github.event.inputs.branches != ''
-        run: |
-          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
-          echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}"
-          echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
-          echo "You should resolve conflicts and commit then push it."
-          echo "git push origin ${{ env.TMP_BRANCH_NAME }}"           
-          exit 1
+#  merge-branches:
+#    needs: [ multiple-branches ]
+#    outputs:
+#      FINAL_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
+#    env:
+#      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#
+#      - name: Set Git user information
+#        if: github.event.inputs.branches != ''
+#        run: |
+#          git config --global user.email "auto_branch@magicloud.io"
+#          git config --global user.name "auto_branch"
+#
+#      - name: Checkout temporary branch
+#        if: github.event.inputs.branches != ''
+#        run: |
+#          git fetch origin
+#          git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}
+#
+#      - name: Merge selected branches
+#        if: github.event.inputs.branches != ''
+#        id: merge
+#        continue-on-error: true
+#        run: |
+#          git branch
+#          branches="${{ github.event.inputs.branches }}"
+#          for branch in $branches; do
+#            if ! git merge --no-ff origin/$branch; then
+#              echo "Merge conflict detected when merging branch origin/$branch "
+#              COMMIT_HASH=$(git rev-parse origin/$branch)
+#              echo "CONFLICT_BRANCH_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+#              exit 1
+#            fi
+#          done
+#
+#      - name: Push temporary branch
+#        if: github.event.inputs.branches != ''
+#        run: |
+#          git push -u origin ${{ env.TMP_BRANCH_NAME }}
+#
+#      - name: Check for merge conflicts
+#        if: steps.merge.outcome == 'failure' && github.event.inputs.branches != ''
+#        run: |
+#          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
+#          echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}"
+#          echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
+#          echo "You should resolve conflicts and commit then push it."
+#          echo "git push origin ${{ env.TMP_BRANCH_NAME }}"
+#          exit 1
 
   build-run:
-    needs: [ merge-branches ]
     env:
       TMP_BRANCH_NAME: ${{ needs.merge-branches.outputs.TMP_BRANCH_NAME }}
     runs-on: ubuntu-latest
@@ -194,15 +193,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Branch Name job
+        id: branch-name
+        uses: ./.github/workflows/cache-branch.yml
+        with:
+          branches: ${{ github.event.inputs.branches  }}
+
+      - name: Branch Merge
+        id: branch-merge
+        uses: ./.github/workflows/cache-branch.yml
+        with:
+          final_branch_name: ${{ steps.branch-name.outputs.final_branch_name  }}
+          branches: ${{ github.event.inputs.branches  }}
+
       - name: Check Out Target Branch
         run: |
-          if [ "${{ github.event.inputs.branches }}" == '' ]; then
+          if [ "${{ steps.branch-name.outputs.final_branch_name }}" == '' ]; then
             git_hash=$(git rev-parse --short HEAD)
             echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
             echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
             echo "one branch ${GITHUB_REF#refs/heads/}"
           else
-            git_hash=$(git rev-parse --short origin/${{ env.TMP_BRANCH_NAME }})
+            git_hash=$(git rev-parse --short origin/${{ env.steps.branch-merge.outputs. }})
             echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
             echo "GIT_BRANCH=${{ env.TMP_BRANCH_NAME }}" >> $GITHUB_ENV
             echo "multiple branch ${{ env.TMP_BRANCH_NAME }}"

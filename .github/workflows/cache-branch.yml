@@ -7,15 +7,11 @@ on:
         description: 'To Merge Branches'
         required: false
         type: string
-    outputs:
-      TMP_BRANCH_NAME:
-        description: 'TMP_BRANCH_NAME',
-        value: ${{ jobs.multiple-branches.outputs.TMP_BRANCH_NAME }}
 
 jobs:
   multiple-branches:
     outputs:
-      TMP_BRANCH_NAME: ${{ steps.final-branch-name.outputs.final_branch_name }}
+      final_branch_name: ${{ steps.final-branch-name.outputs.final_branch_name }}
     env:
       BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
@@ -107,14 +103,24 @@ jobs:
           git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }} origin/${GITHUB_REF#refs/heads/}
           git push -u origin ${{ steps.generate-branch-name.outputs.new_branch_name }}
 
-      - name: Final branch name
+      - name: Find branch name
         if: inputs.branches != ''
-        id: final-branch-name
+        id: find-branch-name
         run: |
           if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
             echo "new branchname = ${{ steps.generate-branch-name.outputs.new_branch_name }}"
-            echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_OUTPUT"
+            echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_ENV"
           else
             echo "old branch name = ${{ steps.read-cache.outputs.branch_name }}"
-            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
+            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_ENV"
+          fi
+      - name: Final branch name
+        id: final-branch-name
+        run: |
+          if [ ${{ inputs.branches }} == '' ]; then
+            echo "not need merge"
+            echo "final_branch_name=" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch name: ${{ env.final_branch_name }}"
+            echo "final_branch_name=${{ env.final_branch_name }}" >> "$GITHUB_OUTPUT"
           fi
