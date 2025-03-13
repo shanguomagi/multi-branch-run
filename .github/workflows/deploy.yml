@@ -188,6 +188,7 @@ jobs:
     needs: multiple_branches
     env:
       TMP_BRANCH_NAME: $(cat branch_info.txt)
+      BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
