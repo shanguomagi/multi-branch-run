@@ -187,7 +187,6 @@ jobs:
   build-run:
     needs: multiple_branches
     env:
-      TMP_BRANCH_NAME: $(cat branch_info.txt)
       BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
     steps:
@@ -200,14 +199,15 @@ jobs:
         run: |
           git checkout -b multiple-branch-info origin/multiple-branch-info
           branch=$(jq -r '.current_branch' ${{ env.BRANCH_JSON }})
-          echo "branch=$branch"
+          echo "TMP_BRANCH=$branch" >> $GITHUB_ENV
+          echo "TMP_BRANCH=$branch"
 
       - name: Branch Merge
         id: branch-merge
         uses: ./.github/workflows/merge-branch.yml
         with:
           branches: ${{ github.event.inputs.branches  }}
-          final-branch-name: ${{ env.TMP_BRANCH_NAME  }}
+          final-branch-name: ${{ env.TMP_BRANCH  }}
 
 #      - name: Check Out Target Branch
 #        run: |
