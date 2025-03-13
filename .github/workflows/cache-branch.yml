@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set output message
-        run: echo "OUTPUT_MESSAGE=${{ inputs.branches }} from Job A" >> $GITHUB_ENV
+        run: echoecho "output_message=${{ inputs.branches }} from Job A" >> $GITHUB_OUTPUT
 
       - name: Set Git user information
         if: inputs.branches != ''

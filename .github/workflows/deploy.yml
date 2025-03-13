@@ -16,7 +16,7 @@ on:
 
 
 jobs:
-  multiple-branches:
+  multiple_branches:
     uses: ./.github/workflows/cache-branch.yml
     with:
       branches: ${{ github.event.inputs.branches  }}
@@ -185,16 +185,14 @@ jobs:
 #          exit 1
 
   build-run:
-    needs: multiple-branches
+    needs: multiple_branches
     env:
       TMP_BRANCH_NAME: $(cat branch_info.txt)
     runs-on: ubuntu-latest
     steps:
       - name: Print output from Job A
         run: |
-          echo "Received output: $OUTPUT_MESSAGE"
-        env:
-          OUTPUT_MESSAGE: ${{ secrets.OUTPUT_MESSAGE }}  # 读取环境变量
+          echo "Received output: ${{ needs.multiple_branches.outputs.output_message }}"
 
       - name: Branch Name job
         id: branch-name
