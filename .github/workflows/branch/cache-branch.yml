@@ -7,10 +7,6 @@ on:
         description: 'To Merge Branches'
         required: false
         type: string
-    secrets:
-      secret1:
-        description: 'Example secret'
-        required: true
 
 jobs:
   multiple-branches:
@@ -66,7 +62,7 @@ jobs:
           sorted_branches=($(printf "%s\n" "${unique_branch_array[@]}" | sort))
 
           asc_branch_name=$(IFS=_; echo "${sorted_branches[*]}")
-          echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_ENV
+          echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
 
 
@@ -74,7 +70,7 @@ jobs:
         if: inputs.branches != ''
         id: read-cache
         run: |
-          branch_info=$(jq -r '.${{ asc_branch_name }}' ${{ env.BRANCH_JSON }})
+          branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.BRANCH_JSON }})
           if [ -n "$branch_info" ]; then
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
             echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
@@ -102,13 +98,13 @@ jobs:
           git push
 
       - name: Create temporary branch
-        if: steps.generate-branch-name.outputs.new_branch_name != '' && github.event.inputs.branches != ''
+        if: steps.generate-branch-name.outputs.new_branch_name != '' && inputs.branches != ''
         run: |
           git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }} origin/${GITHUB_REF#refs/heads/}
           git push -u origin ${{ steps.generate-branch-name.outputs.new_branch_name }}
 
       - name: Final branch name
-        if: github.event.inputs.branches != ''
+        if: inputs.branches != ''
         id: final-branch-name
         run: |
           if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
