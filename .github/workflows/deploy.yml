@@ -202,7 +202,7 @@ jobs:
 #          branches: ${{ github.event.inputs.branches  }}
       - name: Branch name
         run: |
-          X=$(cat commit_hash.txt)
+          X=$(cat branch_info.txt)
           echo "name=${{env.TMP_BRANCH_NAME}} x=X"
 
       - name: Branch Merge
