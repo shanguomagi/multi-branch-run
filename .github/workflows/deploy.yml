@@ -15,10 +15,10 @@ on:
         default: dev
 
 jobs:
-#  multiple-branches:
-#    uses: ./.github/workflows/cache-branch.yml
-#    with:
-#      branches: ${{ github.event.inputs.branches  }}
+  multiple-branches:
+    uses: ./.github/workflows/cache-branch.yml
+    with:
+      branches: ${{ github.event.inputs.branches  }}
 #    outputs:
 #      TMP_BRANCH_NAME: ${{ jobs.multiple-branches.outputs.TMP_BRANCH_NAME }}
 
@@ -184,8 +184,8 @@ jobs:
 #          exit 1
 
   build-run:
-#    env:
-#      TMP_BRANCH_NAME: ${{ needs.merge-branches.outputs.TMP_BRANCH_NAME }}
+    env:
+      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.final_branch_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -193,18 +193,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Branch Name job
-        id: branch-name
-        uses: ./.github/workflows/cache-branch.yml
-        with:
-          branches: ${{ github.event.inputs.branches  }}
+#      - name: Branch Name job
+#        id: branch-name
+#        uses: ./.github/workflows/cache-branch.yml
+#        with:
+#          branches: ${{ github.event.inputs.branches  }}
 
       - name: Branch Merge
         id: branch-merge
         uses: ./.github/workflows/merge-branch.yml
         with:
           branches: ${{ github.event.inputs.branches  }}
-          final-branch-name: ${{ github.event.inputs.branches  }}
+          final-branch-name: ${{ env.TMP_BRANCH_NAME  }}
 
 #      - name: Check Out Target Branch
 #        run: |
