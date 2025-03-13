@@ -11,7 +11,7 @@ on:
 jobs:
   multiple-branches:
     outputs:
-      final_branch_name: ${{ steps.final-branch-name.outputs.final_branch_name }}
+      final_branch_name: "aaa ${{ steps.final-branch-name.outputs.final_branch_name }}"
     env:
       BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
