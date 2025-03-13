@@ -1,18 +1,16 @@
-name: run
+name: Read Cache Merged Branch
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       branches:
-        description: 'Branches to merge (separated by space)'
+        description: 'To Merge Branches'
         required: false
         type: string
-        default: ""
-      environment:
-        description: 'Environment (e.g., dev, staging, prod)'
+    secrets:
+      secret1:
+        description: 'Example secret'
         required: true
-        type: string
-        default: dev
 
 jobs:
   multiple-branches:
@@ -20,7 +18,6 @@ jobs:
       TMP_BRANCH_NAME: ${{ steps.final-branch-name.outputs.final_branch_name }}
     env:
       BRANCH_JSON: './multiple_branch.json'
-      ENV: ${{ github.event.inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,19 +26,19 @@ jobs:
           fetch-depth: 0
 
       - name: Set Git user information
-        if: github.event.inputs.branches != ''
+        if: inputs.branches != ''
         run: |
           git config --global user.email "auto_branch@magicloud.io"
           git config --global user.name "auto_branch"
 
       - name: Git checkout multiple-branch-info
-        if: github.event.inputs.branches != ''
+        if: inputs.branches != ''
         run: |
           git checkout -b multiple-branch-info origin/multiple-branch-info
           git branch
 
       - name: Read data from file
-        if: github.event.inputs.branches != ''
+        if: inputs.branches != ''
         run: |
           if [ -f "${{ env.BRANCH_JSON }}" ]; then
             echo "multiple_branch.json exist。"
@@ -52,10 +49,10 @@ jobs:
           fi
 
       - name: Branches sort name key
-        if: github.event.inputs.branches != ''
+        if: inputs.branches != ''
         id: branches-sort
         run: |
-          branches="${{ github.event.inputs.branches }}"
+          branches="${{ inputs.branches }}"
           IFS=' ' read -r -a branch_array <<< "$branches"
           declare -A unique_branches
           for branch in "${branch_array[@]}"; do
@@ -65,16 +62,16 @@ jobs:
           for branch in "${!unique_branches[@]}"; do
             unique_branch_array+=("$branch")
           done
-        
+
           sorted_branches=($(printf "%s\n" "${unique_branch_array[@]}" | sort))
-          
+
           asc_branch_name=$(IFS=_; echo "${sorted_branches[*]}")
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_ENV
           echo "${asc_branch_name}"
 
 
       - name: Read Cache Branch
-        if: github.event.inputs.branches != ''
+        if: inputs.branches != ''
         id: read-cache
         run: |
           branch_info=$(jq -r '.${{ asc_branch_name }}' ${{ env.BRANCH_JSON }})
@@ -90,7 +87,7 @@ jobs:
 
       - name: Generate temporary branch name
         id: generate-branch-name
-        if: steps.read-cache.outputs.branch_name == '' && github.event.inputs.branches != ''
+        if: steps.read-cache.outputs.branch_name == '' && inputs.branches != ''
         run: |
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
@@ -120,86 +117,4 @@ jobs:
           else
             echo "old branch name = ${{ steps.read-cache.outputs.branch_name }}"
             echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
-          fi
-
-
-  merge-branches:
-    needs: [ multiple-branches ]
-    outputs:
-      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
-    env:
-      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set Git user information
-        if: github.event.inputs.branches != ''
-        run: |
-          git config --global user.email "auto_branch@magicloud.io"
-          git config --global user.name "auto_branch"
-
-      - name: Checkout temporary branch
-        if: github.event.inputs.branches != ''
-        run: |
-          git fetch origin
-          git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}
-
-      - name: Merge selected branches
-        if: github.event.inputs.branches != ''
-        id: merge
-        continue-on-error: true
-        run: |
-          git branch
-          branches="${{ github.event.inputs.branches }}"
-          for branch in $branches; do
-            if ! git merge --no-ff origin/$branch; then
-              echo "Merge conflict detected when merging branch origin/$branch "
-              COMMIT_HASH=$(git rev-parse origin/$branch)
-              echo "CONFLICT_BRANCH_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-              exit 1
-            fi
-          done
-
-      - name: Push temporary branch
-        if: github.event.inputs.branches != ''
-        run: |
-          git push -u origin ${{ env.TMP_BRANCH_NAME }}
-
-      - name: Check for merge conflicts
-        if: steps.merge.outcome == 'failure' && github.event.inputs.branches != ''
-        run: |
-          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
-          echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH_NAME }} origin/${{ env.TMP_BRANCH_NAME }}"
-          echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
-          echo "You should resolve conflicts and commit then push it."
-          echo "git push origin ${{ env.TMP_BRANCH_NAME }}"           
-          exit 1
-
-  build-run:
-    needs: [ merge-branches ]
-    env:
-      TMP_BRANCH_NAME: ${{ needs.merge-branches.outputs.TMP_BRANCH_NAME }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Check Out Target Branch
-        run: |
-          if [ "${{ github.event.inputs.branches }}" == '' ]; then
-            git_hash=$(git rev-parse --short HEAD)
-            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
-            echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-            echo "one branch ${GITHUB_REF#refs/heads/}"
-          else
-            git_hash=$(git rev-parse --short origin/${{ env.TMP_BRANCH_NAME }})
-            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
-            echo "GIT_BRANCH=${{ env.TMP_BRANCH_NAME }}" >> $GITHUB_ENV
-            echo "multiple branch ${{ env.TMP_BRANCH_NAME }}"
           fi
