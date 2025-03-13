@@ -19,8 +19,13 @@ jobs:
     uses: ./.github/workflows/cache-branch.yml
     with:
       branches: ${{ github.event.inputs.branches  }}
-  #    outputs:
-#      TMP_BRANCH_NAME: ${{ steps.final-branch-name.outputs.final_branch_name }}
+    outputs:
+      TMP_BRANCH_NAME: ${{ steps.final-branch-name.outputs.TMP_BRANCH_NAME }}
+    steps:
+      - name: Final branch name
+        id: final-branch-name
+        uses: ./.github/workflows/cache-branch.yml
+
 #    env:
 #      BRANCH_JSON: './multiple_branch.json'
 #      ENV: ${{ github.event.inputs.environment }}
