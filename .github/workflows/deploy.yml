@@ -198,6 +198,9 @@ jobs:
 #        uses: ./.github/workflows/cache-branch.yml
 #        with:
 #          branches: ${{ github.event.inputs.branches  }}
+      - name: Branch name
+        run: |
+          echo "name=${{env.TMP_BRANCH_NAME}}"
 
       - name: Branch Merge
         id: branch-merge
