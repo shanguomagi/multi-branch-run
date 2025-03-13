@@ -7,6 +7,10 @@ on:
         description: 'To Merge Branches'
         required: false
         type: string
+    outputs:
+      TMP_BRANCH_NAME:
+        description: 'TMP_BRANCH_NAME',
+        value: ${{ jobs.multiple-branches.outputs.TMP_BRANCH_NAME }}
 
 jobs:
   multiple-branches:

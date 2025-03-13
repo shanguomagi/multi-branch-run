@@ -129,7 +129,7 @@ jobs:
   merge-branches:
     needs: [ multiple-branches ]
     outputs:
-      TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
+      FINAL_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
     env:
       TMP_BRANCH_NAME: ${{ needs.multiple-branches.outputs.TMP_BRANCH_NAME }}
     runs-on: ubuntu-latest
