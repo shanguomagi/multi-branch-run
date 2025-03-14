@@ -206,6 +206,7 @@ jobs:
           branch=$(jq -r '.current_branch' ${{ env.BRANCH_JSON }})
           echo "TMP_BRANCH=$branch" >> $GITHUB_ENV
           echo "TMP_BRANCH=$branch"
+          git checkout -b ${GITHUB_REF#refs/heads/} origin/${GITHUB_REF#refs/heads/}
 
       - name: Read branch
         run: |
