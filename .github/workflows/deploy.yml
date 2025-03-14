@@ -212,6 +212,8 @@ jobs:
           git branch
           echo "The source branch is ${{ github.head_ref }}"
           echo "The target branch is ${{ github.base_ref }}"
+          echo "The target branch is ${{ github.ref }}"
+          echo "The target branch is ${GITHUB_REF#refs/heads/}"
 
 #      - name: Check Out Target Branch
 #        run: |
