@@ -7,10 +7,6 @@ on:
         description: 'To Merge Branches'
         required: false
         type: string
-      final-branch-name:
-        description: 'tmp branch name'
-        required: false
-        type: string
 
 jobs:
   merge-branches:
@@ -27,11 +23,18 @@ jobs:
           git config --global user.email "auto_branch@magicloud.io"
           git config --global user.name "auto_branch"
 
+      - name: Git checkout multiple-branch-info
+        if: inputs.branches != ''
+        run: |
+          git checkout -b multiple-branch-info origin/multiple-branch-info
+          branch=$(jq -r '.current_branch' ${{ env.BRANCH_JSON }})
+          echo "TMP_BRANCH=$branch" >> $GITHUB_ENV
+
       - name: Checkout temporary branch
         if: inputs.branches != ''
         run: |
           git fetch origin
-          git checkout -b ${{ inputs.final-branch-name }} origin/${{ inputs.final-branch-name }}
+          git checkout -b ${{ env.TMP_BRANCH }} origin/${{ env.TMP_BRANCH }}
 
       - name: Merge selected branches
         if: inputs.branches != ''
@@ -52,14 +55,14 @@ jobs:
       - name: Push temporary branch
         if: inputs.branches != ''
         run: |
-          git push -u origin ${{ inputs.final-branch-name }}
+          git push -u origin ${{ env.TMP_BRANCH }}
 
       - name: Check for merge conflicts
         if: steps.merge.outcome == 'failure' && inputs.branches != ''
         run: |
           echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
-          echo "git fetch origin; git checkout -b ${{ inputs.final-branch-name }} origin/${{ inputs.final-branch-name }}"
+          echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH }} origin/${{ env.TMP_BRANCH }}"
           echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
           echo "You should resolve conflicts and commit then push it."
-          echo "git push origin ${{ inputs.final-branch-name }}"
+          echo "git push origin ${{ env.TMP_BRANCH }}"
           exit 1
