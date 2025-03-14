@@ -21,6 +21,7 @@ jobs:
     with:
       branches: ${{ github.event.inputs.branches  }}
   merge_branches:
+    needs: multiple_branches
     uses: ./.github/workflows/merge-branch.yml
     with:
       branches: ${{ github.event.inputs.branches  }}
@@ -189,7 +190,7 @@ jobs:
 #          exit 1
 
   build-run:
-    needs: multiple_branches
+    needs: merge_branches
     env:
       BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
