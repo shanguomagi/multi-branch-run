@@ -63,7 +63,8 @@ jobs:
           IFS=' ' read -r -a branch_array <<< "$branches"
           declare -A unique_branches
           for branch in "${branch_array[@]}"; do
-            unique_branches["$branch"]=1
+            sanitized_branch="${branch//\//-}"
+            unique_branches["$sanitized_branch"]=1
           done
           unique_branch_array=()
           for branch in "${!unique_branches[@]}"; do
@@ -81,8 +82,14 @@ jobs:
         if: inputs.branches != ''
         id: read-cache
         run: |
+          echo "Reading branch info from JSON file..."
+          git branch
           branch_info=$(jq -r '.${{ steps.branches-sort.outputs.asc_branch_name }}' ${{ env.BRANCH_JSON }})
-          if [ -n "$branch_info" ]; then
+          echo "Raw branch_info: $branch_info"
+          if [ "$branch_info" = "null" ]; then
+            echo "branch_name=''" >> $GITHUB_OUTPUT
+            echo 'not find branch_info'
+          else
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
             echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
@@ -92,9 +99,6 @@ jobs:
             git status
             git commit -a -m "Tmp Branch $branch_name"
             git push
-          else
-            echo "branch_name=''" >> $GITHUB_OUTPUT
-            echo 'not find branch_info'
           fi
           echo "$branch_name"
 
