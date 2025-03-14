@@ -20,7 +20,6 @@ jobs:
           fetch-depth: 0
 
       - name: Set Git user information
-        if: inputs.branches != ''
         run: |
           git config --global user.email "auto_branch@magicloud.io"
           git config --global user.name "auto_branch"
