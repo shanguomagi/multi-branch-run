@@ -11,6 +11,8 @@ on:
 jobs:
   merge-branches:
     runs-on: ubuntu-latest
+    env:
+      BRANCH_JSON: './multiple_branch.json'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
