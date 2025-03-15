@@ -88,8 +88,13 @@ jobs:
             echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
-            had_branch=$(git branch -r | grep "$branch_name")
+            had_branch=$(git branch -r | grep "aaa")
             echo "branch=$had_branch"
+            if [ -z "$had_branch" ]; then
+              echo "分支 $branch_name 不存在"
+            else
+              echo "分支 $branch_name 存在"
+            fi
             if [ "$had_branch" = "" ]; then
               echo "generate=1" >> $GITHUB_ENV
             else
