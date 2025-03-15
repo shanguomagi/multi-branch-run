@@ -74,7 +74,7 @@ jobs:
             echo "branch_name=${branch_name}" >> $GITHUB_ENV
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
-            had_branch=$(git branch -r | grep "${{env.branch_name}}")
+            had_branch=$(git branch -r | grep -w "origin/${{env.branch_name}}")
             echo "had_branch=$had_branch"
             if [ -z "$had_branch" ]; then
               echo "分支 $branch_name 不存在"
