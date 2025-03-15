@@ -65,12 +65,10 @@ jobs:
           for branch in "${!unique_branches[@]}"; do
             unique_branch_array+=("$branch")
           done
-
           sorted_branches=($(printf "%s\n" "${unique_branch_array[@]}" | sort))
-
-          asc_branch_name=$(IFS=_; echo "${sorted_branches[*]}")
-          echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
-          echo "${asc_branch_name}"
+          asc_branch_key=$(IFS=_; echo "${sorted_branches[*]}")
+          echo "asc_branch_key=${asc_branch_key}" >> $GITHUB_ENV
+          echo "asc_branch_key=${asc_branch_key}"
 
       - name: xxx
         run: |
@@ -82,7 +80,7 @@ jobs:
         id: read-cache
         run: |
           echo "Reading branch info from JSON file..."
-          branch_info=$(jq -r '."${{ steps.branches-sort.outputs.asc_branch_name }}"' ${{ env.BRANCH_JSON }})
+          branch_info=$(jq -r '."${{ env.asc_branch_key }}"' ${{ env.BRANCH_JSON }})
           echo "Raw branch_info: $branch_info"
           if [ "$branch_info" = "null" ]; then
             echo "branch_name=''" >> $GITHUB_OUTPUT
@@ -94,9 +92,14 @@ jobs:
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
             git fetch origin
-            had_branch=$(git branch -r | grep "$branch_name")
-            git branch
-            echo "generate=" >> $GITHUB_ENV
+#            had_branch=$(git branch -r | grep "$branch_name")
+            jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
+            time=$(date +%Y-%m-%d\ %H:%M:%S)
+            jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
+            git status
+            git commit -a -m "Tmp Branch $branch_name"
+            git push
+            echo "generate=1" >> $GITHUB_ENV                
           fi
           echo "$branch_name"
 
@@ -108,7 +111,7 @@ jobs:
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
           branch_name=tmp/tmp_${timestamp}
-          asc_branch_name=${{ steps.branches-sort.outputs.asc_branch_name }}
+          asc_branch_name=${{ env.asc_branch_key }}
           echo "${branch_name}"
           BRANCH_INFO="{ \"branch_name\": \"${branch_name}\", \"time\": \"${time}\", \"timestamp\": ${timestamp} }"
           echo "$BRANCH_INFO"
