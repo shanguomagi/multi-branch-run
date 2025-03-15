@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BRANCH_JSON: './multiple_branch.json'
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Set Git user information
         run: |
@@ -27,9 +27,11 @@ jobs:
       - name: Git checkout multiple-branch-info
         if: inputs.branches != ''
         run: |
+          git fetch origin
           git checkout -b multiple-branch-info origin/multiple-branch-info
           branch=$(jq -r '.current_branch' ${{ env.BRANCH_JSON }})
           echo "TMP_BRANCH=$branch" >> $GITHUB_ENV
+          echo "read TMP_BRANCH=$branch"
 
       - name: Checkout temporary branch
         if: inputs.branches != ''
