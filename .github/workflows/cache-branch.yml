@@ -90,9 +90,9 @@ jobs:
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
             git fetch origin
-            git branch -r | grep "$branch_name"
+            had_branch=$(git branch -r | grep "$branch_name")
             git branch
-            if [ $? -eq 0 ]; then
+            if [ $had_branch -eq 0 ]; then
               echo "远程分支存在"
               jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json 
               time=$(date +%Y-%m-%d\ %H:%M:%S)
