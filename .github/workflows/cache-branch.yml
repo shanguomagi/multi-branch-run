@@ -76,8 +76,9 @@ jobs:
             echo "Checking for branch: $branch_name"
             had_branch=$(git branch -r | grep "${{env.branch_name}}")
 #            had_branch= $had_branch | grep -w "origin/${{env.branch_name}}"
+            echo "$had_branch" | grep -q "$branch_name"
             echo "had_branch=$had_branch"
-            if [[ $had_branch == *"$branch_name"* ]]; then
+            if [ "$had_branch" = "" ]; then
               echo "分支 $branch_name 不存在"
             else
               echo "分支 $branch_name 存在"
