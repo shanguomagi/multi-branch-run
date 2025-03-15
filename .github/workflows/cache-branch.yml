@@ -72,6 +72,10 @@ jobs:
           echo "asc_branch_name=${asc_branch_name}" >> $GITHUB_OUTPUT
           echo "${asc_branch_name}"
 
+      - name: xxx
+        run: |
+          had_branch=$(git branch -r | grep "$branch_name")
+          echo "branch=$had_branch"
 
       - name: Read Cache Branch
         if: inputs.branches != ''
