@@ -96,19 +96,19 @@ jobs:
             git fetch origin
             had_branch=$(git branch -r | grep "$branch_name")
             git branch
-            if [ $had_branch -eq 0 ]; then
-              echo "远程分支存在"
-              jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json 
-              time=$(date +%Y-%m-%d\ %H:%M:%S)
-              jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
-              git status
-              git commit -a -m "Tmp Branch $branch_name"
-              git push
-              echo "generate=1" >> $GITHUB_ENV
-            else
-              echo "远程分支不存在"
-              echo "generate=" >> $GITHUB_ENV
-            fi
+#            if [ $had_branch -eq 0 ]; then
+#              echo "远程分支存在"
+#              jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
+#              time=$(date +%Y-%m-%d\ %H:%M:%S)
+#              jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
+#              git status
+#              git commit -a -m "Tmp Branch $branch_name"
+#              git push
+#              echo "generate=1" >> $GITHUB_ENV
+#            else
+#              echo "远程分支不存在"
+#              echo "generate=" >> $GITHUB_ENV
+#            fi
           fi
           echo "$branch_name"
 
