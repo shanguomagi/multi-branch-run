@@ -74,7 +74,7 @@ jobs:
             echo "branch_name=${branch_name}" >> $GITHUB_ENV
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
-            git branch -r | grep "${{env.branch_name}}"
+            git branch -r | grep "tmp_1742030445"
             had_branch=$(git branch -r | grep "${{env.branch_name}}")
             echo "had_branch=$had_branch"
             if [ -z "$had_branch" ]; then
