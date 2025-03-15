@@ -99,7 +99,7 @@ jobs:
 #            git push
 #            echo "generate=1" >> $GITHUB_ENV
 #          fi
-          echo "$branch_name"
+#          echo "$branch_name"
 
       - name: Generate temporary branch name
         id: generate-branch-name
