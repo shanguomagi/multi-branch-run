@@ -70,10 +70,10 @@ jobs:
           echo "asc_branch_key=${asc_branch_key}" >> $GITHUB_ENV
           echo "asc_branch_key=${asc_branch_key}"
 
-      - name: xxx
-        run: |
-          had_branch=$(git branch -r | grep "aaa")
-          echo "branch=$had_branch"
+#      - name: xxx
+#        run: |
+#          had_branch=$(git branch -r | grep "aaa")
+#          echo "branch=$had_branch"
 
       - name: Read Cache Branch
         if: inputs.branches != ''
