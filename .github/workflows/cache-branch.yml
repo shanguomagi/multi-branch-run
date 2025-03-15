@@ -89,6 +89,7 @@ jobs:
             echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
+            git branch
             git branch -r | grep "$branch_name"
             if [ $? -eq 0 ]; then
               echo "远程分支存在"
