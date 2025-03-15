@@ -74,7 +74,7 @@ jobs:
 
       - name: xxx
         run: |
-          had_branch=$(git branch -r | grep "$branch_name")
+          had_branch=$(git branch -r | grep "aaa")
           echo "branch=$had_branch"
 
       - name: Read Cache Branch
