@@ -102,6 +102,7 @@ jobs:
         id: generate-branch-name
         if: ${{ env.generate != '' }}
         run: |
+          echo "xxx=${{ env.generate != '' }}"
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
           branch_name=tmp/tmp_${timestamp}
