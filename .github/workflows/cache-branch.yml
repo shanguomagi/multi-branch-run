@@ -30,25 +30,27 @@ jobs:
         run: |
           git fetch origin
           git checkout -b multiple-branch-info origin/multiple-branch-info
+          branches="${{ inputs.branches }}" 
+          echo "branches=$branches" >> $GITHUB_ENV
           if [ "${{ inputs.branches }}" == "" ]; then
             branch_name=''
             jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
             time=$(date +%Y-%m-%d\ %H:%M:%S)
             jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
-            git commit -a -m "Tmp Branch $branch_name"
+            git commit -a -m "Tmp current multiple branch set empty"
             git push
           fi
 
-      - name: Read data from file
-        if: inputs.branches != ''
-        run: |
-          if [ -f "${{ env.BRANCH_JSON }}" ]; then
-            echo "multiple_branch.json exist。"
-            data=$(cat ${{ env.BRANCH_JSON }})
-            echo "Previous multiple_branch_data: $data"
-          else
-            echo "multiple_branch.json not exist, please check it"
-          fi
+#      - name: Read data from file
+#        if: inputs.branches != ''
+#        run: |
+#          if [ -f "${{ env.BRANCH_JSON }}" ]; then
+#            echo "multiple_branch.json exist。"
+#            data=$(cat ${{ env.BRANCH_JSON }})
+#            echo "Previous multiple_branch_data: $data"
+#          else
+#            echo "multiple_branch.json not exist, please check it"
+#          fi
 
       - name: Branches sort name key
         if: inputs.branches != ''
@@ -70,11 +72,6 @@ jobs:
           echo "asc_branch_key=${asc_branch_key}" >> $GITHUB_ENV
           echo "asc_branch_key=${asc_branch_key}"
 
-#      - name: xxx
-#        run: |
-#          had_branch=$(git branch -r | grep "aaa")
-#          echo "branch=$had_branch"
-
       - name: Read Cache Branch
         if: inputs.branches != ''
         id: read-cache
@@ -91,15 +88,20 @@ jobs:
             echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
-            had_branch=$(git branch -r | grep "aaa")
+            had_branch=$(git branch -r | grep "$branch_name")
             echo "branch=$had_branch"
-            jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
-            time=$(date +%Y-%m-%d\ %H:%M:%S)
-            jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
-            git status
-            git commit -a -m "Tmp Branch $branch_name"
-            git push
-            echo "generate=1" >> $GITHUB_ENV
+            if [ "$had_branch" = "" ]; then
+              echo "generate=1" >> $GITHUB_ENV
+            else
+              jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
+              time=$(date +%Y-%m-%d\ %H:%M:%S)
+              jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
+              git status
+              git commit -a -m "Tmp Branch $branch_name"
+              git push
+              echo "generate=" >> $GITHUB_ENV
+            fi
+            
           fi
           echo "$branch_name"
 
@@ -107,7 +109,6 @@ jobs:
         id: generate-branch-name
         if: ${{ env.generate != '' }}
         run: |
-          echo "xxx=${{ env.generate != '' }} ${{ env.generate }}"
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
           branch_name=tmp/tmp_${timestamp}
@@ -118,24 +119,24 @@ jobs:
           jq --arg key "$asc_branch_name" --argjson new_info "$BRANCH_INFO" '.[ $key ] = $new_info' ${{ env.BRANCH_JSON }} > temp.json
           jq --arg currnent "$branch_name" '.current_branch = $currnent' temp.json > temp1.json
           mv temp1.json ${{ env.BRANCH_JSON }}
-          echo "new_branch_name=tmp/tmp_${timestamp}" >> "$GITHUB_OUTPUT"
+          echo "new_branch_name=tmp/tmp_${timestamp}" >> $GITHUB_ENV
           git commit -a -m "Tmp Branch $branch_name"
           git push
 
       - name: Create temporary branch
-        if: steps.generate-branch-name.outputs.new_branch_name != '' && inputs.branches != ''
+        if: ${{ env.new_branch_name != '' && env.branches != '' }}
         run: |
           git fetch origin
-          git checkout -b ${{ steps.generate-branch-name.outputs.new_branch_name }} origin/${GITHUB_REF#refs/heads/}
-          git push -u origin ${{ steps.generate-branch-name.outputs.new_branch_name }}
+          git checkout -b ${{ env.new_branch_name }} origin/${GITHUB_REF#refs/heads/}
+          git push -u origin ${{ env.new_branch_name }}
 
       - name: Find branch name
-        if: inputs.branches != ''
+        if: env.branches != ''
         id: find-branch-name
         run: |
           if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
-            echo "new branchname = ${{ steps.generate-branch-name.outputs.new_branch_name }}"
-            echo "final_branch_name=${{ steps.generate-branch-name.outputs.new_branch_name }}" >> "$GITHUB_ENV"
+            echo "new branchname = ${{ env.new_branch_name }}"
+            echo "final_branch_name=${{ env.new_branch_name }}" >> "$GITHUB_ENV"
           else
             echo "old branch name = ${{ steps.read-cache.outputs.branch_name }}"
             echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_ENV"
