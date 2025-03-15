@@ -89,13 +89,7 @@ jobs:
             echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
-            remote_branches=$(git branch -r 2>&1)
-            if [ $? -ne 0 ]; then
-              echo "执行 git branch -r 时出错: $remote_branches"
-              exit 1
-            fi
-            echo "$remote_branches" | grep "$branch_name"
-#            git branch -r | grep "$branch_name"
+            git branch -r | grep "$branch_name"
             if [ $? -eq 0 ]; then
               echo "远程分支存在"
               jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json 
