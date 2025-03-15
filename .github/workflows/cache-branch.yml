@@ -10,8 +10,6 @@ on:
 
 jobs:
   multiple-branches:
-    outputs:
-      final_branch_name: "aaa ${{ steps.final-branch-name.outputs.final_branch_name }}"
     env:
       BRANCH_JSON: './multiple_branch.json'
     runs-on: ubuntu-latest
@@ -41,17 +39,6 @@ jobs:
             git push
           fi
 
-#      - name: Read data from file
-#        if: inputs.branches != ''
-#        run: |
-#          if [ -f "${{ env.BRANCH_JSON }}" ]; then
-#            echo "multiple_branch.json exist。"
-#            data=$(cat ${{ env.BRANCH_JSON }})
-#            echo "Previous multiple_branch_data: $data"
-#          else
-#            echo "multiple_branch.json not exist, please check it"
-#          fi
-
       - name: Branches sort name key
         if: inputs.branches != ''
         id: branches-sort
@@ -80,15 +67,13 @@ jobs:
           branch_info=$(jq -r '."${{ env.asc_branch_key }}"' ${{ env.BRANCH_JSON }})
           echo "Raw branch_info: $branch_info"
           if [ "$branch_info" = "null" ]; then
-            echo "branch_name=''" >> $GITHUB_OUTPUT
             echo 'not find branch_info'
             echo "generate=1" >> $GITHUB_ENV
           else
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
-            echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
-            had_branch=$(git branch -r | grep "${{branch_name}}")
+            had_branch=$(git branch -r | grep "${branch_name}")
             echo "branch=$had_branch"
             if [ -z "$had_branch" ]; then
               echo "分支 $branch_name 不存在"
@@ -111,7 +96,6 @@ jobs:
           echo "$branch_name"
 
       - name: Generate temporary branch name
-        id: generate-branch-name
         if: ${{ env.generate != '' }}
         run: |
           timestamp=$(date +%s)
@@ -129,34 +113,10 @@ jobs:
           git push
 
       - name: Create temporary branch
-        if: ${{ env.new_branch_name != '' && env.branches != '' }}
+        if: env.new_branch_name != ''
         run: |
           git fetch origin
           git checkout -b ${{ env.new_branch_name }} origin/${GITHUB_REF#refs/heads/}
           git push -u origin ${{ env.new_branch_name }}
 
-      - name: Find branch name
-        if: env.branches != ''
-        id: find-branch-name
-        run: |
-          if [ ${{ steps.read-cache.outputs.branch_name }} == '' ]; then
-            echo "new branchname = ${{ env.new_branch_name }}"
-            echo "final_branch_name=${{ env.new_branch_name }}" >> "$GITHUB_ENV"
-          else
-            echo "old branch name = ${{ steps.read-cache.outputs.branch_name }}"
-            echo "final_branch_name=${{ steps.read-cache.outputs.branch_name }}" >> "$GITHUB_ENV"
-          fi
-      - name: Final branch name
-        id: final-branch-name
-        run: |
-          if [ "${{ inputs.branches }}" == '' ]; then
-            echo "not need merge"
-            echo "final_branch_name=" >> "$GITHUB_OUTPUT"
-            echo "${{ env.final_branch_name }}" > branch_info.txt
-            echo "txt=$(cat branch_info.txt)"
-          else
-            echo "branch name: ${{ env.final_branch_name }}"
-            echo "final_branch_name=${{ env.final_branch_name }}" >> "$GITHUB_OUTPUT"
-            echo "${{ env.final_branch_name }}" > branch_info.txt
-            echo "txt=$(cat branch_info.txt)"
-          fi
+     
