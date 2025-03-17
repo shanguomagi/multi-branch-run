@@ -58,6 +58,7 @@ jobs:
             unique_branch_array+=("$branch")
           done
           sorted_branches=($(printf "%s\n" "${unique_branch_array[@]}" | sort))
+          echo "sorted_branches=$sorted_branches"
           asc_branch_key=$(IFS=_; echo "${sorted_branches[*]}")
           echo "asc_branch_key=${asc_branch_key}" >> $GITHUB_ENV
           echo "asc_branch_key=${asc_branch_key}"
