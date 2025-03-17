@@ -24,6 +24,10 @@ jobs:
           git config --global user.email "auto_branch@magicloud.io"
           git config --global user.name "auto_branch"
 
+      - name: Branch infos
+        run: |
+          echo "branches=${{ inputs.branches }}"
+
       - name: Git checkout multiple-branch-info
         run: |
           git fetch origin
