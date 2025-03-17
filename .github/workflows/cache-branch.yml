@@ -66,7 +66,7 @@ jobs:
           branch_info=$(jq -r '."${{ env.asc_branch_key }}"' ${{ env.BRANCH_JSON }})
           echo "Raw branch_info: $branch_info"
           if [ "$branch_info" = "null" ]; then
-            echo 'not find branch_info'
+            echo 'not find branch_info,generate=needbranch'
             echo "generate=needbranch" >> $GITHUB_ENV
           else
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
@@ -79,12 +79,13 @@ jobs:
               jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
               time=$(date +%Y-%m-%d\ %H:%M:%S)
               jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
-              git status
               git commit -a -m "Tmp Branch $branch_name"
               git push
+              echo "exist:${{env.branch_name}}, generate=exist"
               echo "generate=exist" >> $GITHUB_ENV
             else
               echo "generate=needbranch" >> $GITHUB_ENV
+              echo "exist:${{env.branch_name}}, generate=needbranch"
             fi
           fi
 
