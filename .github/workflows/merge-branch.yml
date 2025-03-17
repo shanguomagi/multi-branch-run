@@ -64,6 +64,7 @@ jobs:
         if: steps.merge.outcome == 'failure' && inputs.branches != ''
         run: |
           echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
+          echo "steps.merge.outcome=${{steps.merge.outcome}}"
           echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH }} origin/${{ env.TMP_BRANCH }}"
           echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
           echo "You should resolve conflicts and commit then push it."
