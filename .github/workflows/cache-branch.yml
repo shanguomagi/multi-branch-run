@@ -67,7 +67,7 @@ jobs:
           echo "Raw branch_info: $branch_info"
           if [ "$branch_info" = "null" ]; then
             echo 'not find branch_info'
-            echo "generate=1" >> $GITHUB_ENV
+            echo "generate=needbranch" >> $GITHUB_ENV
           else
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
             echo "branch_name=${branch_name}" >> $GITHUB_ENV
@@ -75,15 +75,21 @@ jobs:
             echo "Checking for branch: $branch_name"
             had_branch=$(git branch -r | grep "${{env.branch_name}}")
             echo "had_branch=$had_branch"
-            if [[ "$had_branch" == *"sss"* ]]; then
-              echo "包含：had_branch"
+            if [[ "$had_branch" == *"${{env.branch_name}}"* ]]; then
+              jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
+              time=$(date +%Y-%m-%d\ %H:%M:%S)
+              jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
+              git status
+              git commit -a -m "Tmp Branch $branch_name"
+              git push
+              echo "generate=exist" >> $GITHUB_ENV
             else
-              echo "不包含：had_branch"
+              echo "generate=needbranch" >> $GITHUB_ENV
             fi
           fi
 
       - name: Generate temporary branch name
-        if: ${{ env.generate != '' }}
+        if: ${{ env.generate == 'needbranch' }}
         run: |
           timestamp=$(date +%s)
           time=$(date +%Y-%m-%d\ %H:%M:%S)
