@@ -69,7 +69,10 @@ jobs:
             echo 'not find branch_info'
             echo "generate=1" >> $GITHUB_ENV
           else
-            echo "generate=" >> $GITHUB_ENV
+            branch_name=$(echo "$branch_info" | jq -r '.branch_name')
+            echo "branch_name=${branch_name}" >> $GITHUB_ENV
+            echo "find branch_info $branch_info $branch_name"
+            echo "Checking for branch: $branch_name"
           fi
 
       - name: Generate temporary branch name
