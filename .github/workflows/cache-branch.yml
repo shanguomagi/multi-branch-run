@@ -47,11 +47,14 @@ jobs:
           IFS=' ' read -r -a branch_array <<< "$branches"
           declare -A unique_branches
           for branch in "${branch_array[@]}"; do
+            echo "ub=$branch"
             sanitized_branch="${branch//\//_}"
+            echo "sb=$branch"
             unique_branches["$sanitized_branch"]=1
           done
           unique_branch_array=()
           for branch in "${!unique_branches[@]}"; do
+            echo "ub=$branch"
             unique_branch_array+=("$branch")
           done
           sorted_branches=($(printf "%s\n" "${unique_branch_array[@]}" | sort))
