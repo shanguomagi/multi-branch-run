@@ -74,7 +74,7 @@ jobs:
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
             had_branch=$(git branch -r | grep "${{env.branch_name}}")
-            echo="had_branch=$had_branch"
+#            echo="had_branch=$had_branch"
 #            res=$($had_branch" | grep -q "$branch_name)
 #            if [[ "$had_branch" == *"${{env.branch_name}}"* ]]; then
 #               echo "包含：had_branch"
