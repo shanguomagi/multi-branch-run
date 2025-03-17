@@ -51,24 +51,24 @@ jobs:
           echo "The target branch is ${GITHUB_REF#refs/heads/}"
           git checkout ${GITHUB_REF#refs/heads/}
 
-#      - name: Read branch
-#        run: |
-#          git branch
-#          echo "The source branch is ${{ github.head_ref }}"
-#          echo "The target branch is ${{ github.base_ref }}"
-#          echo "The target branch is ${{ github.ref }}"
-#          echo "The target branch is ${GITHUB_REF#refs/heads/}"
-#
-#      - name: Check Out Target Branch
-#        run: |
-#          if [ "${{ env.TMP_BRANCH }}" == '' ]; then
-#            git_hash=$(git rev-parse --short HEAD)
-#            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
-#            echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-#            echo "one branch ${GITHUB_REF#refs/heads/}"
-#          else
-#            git_hash=$(git rev-parse --short origin/${{ env.TMP_BRANCH }})
-#            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
-#            echo "GIT_BRANCH=${{ env.TMP_BRANCH }}" >> $GITHUB_ENV
-#            echo "multiple branch ${{ env.TMP_BRANCH }}"
-#          fi
+      - name: Read branch
+        run: |
+          git branch
+          echo "The source branch is ${{ github.head_ref }}"
+          echo "The target branch is ${{ github.base_ref }}"
+          echo "The target branch is ${{ github.ref }}"
+          echo "The target branch is ${GITHUB_REF#refs/heads/}"
+
+      - name: Check Out Target Branch
+        run: |
+          if [ "${{ env.TMP_BRANCH }}" == '' ]; then
+            git_hash=$(git rev-parse --short HEAD)
+            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
+            echo "GIT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+            echo "one branch ${GITHUB_REF#refs/heads/}"
+          else
+            git_hash=$(git rev-parse --short origin/${{ env.TMP_BRANCH }})
+            echo "GIT_SHORT_SHA=$git_hash" >> $GITHUB_ENV
+            echo "GIT_BRANCH=${{ env.TMP_BRANCH }}" >> $GITHUB_ENV
+            echo "multiple branch ${{ env.TMP_BRANCH }}"
+          fi

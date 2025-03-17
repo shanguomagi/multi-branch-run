@@ -56,8 +56,8 @@ jobs:
           done
           sorted_branches=($(printf "%s\n" "${unique_branch_array[@]}" | sort))
           asc_branch_key=$(IFS=_; echo "${sorted_branches[*]}")
-          echo "asc_branch_key=${asc_branch_key}" >> $GITHUB_ENV
-          echo "asc_branch_key=${asc_branch_key}"
+#          echo "asc_branch_key=${asc_branch_key}" >> $GITHUB_ENV
+#          echo "asc_branch_key=${asc_branch_key}"
 
       - name: Read Cache Branch
         if: inputs.branches != ''
