@@ -85,7 +85,7 @@ jobs:
               echo "generate=exist" >> $GITHUB_ENV
             else
               echo "generate=needbranch" >> $GITHUB_ENV
-              echo "exist:$branch_name}, generate=needbranch"
+              echo "not exist cached:$branch_name, generate=needbranch"
             fi
           fi
 
