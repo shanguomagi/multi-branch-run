@@ -74,6 +74,12 @@ jobs:
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
             had_branch=$(git branch -r | grep "${{env.branch_name}}")
+#            echo "$had_branch" | grep -q "$branch_name"
+            if echo "$had_branch" | grep -qF "$branch_name"; then
+              echo "had_branch 包含分支 $branch_name"
+            else
+              echo "had_branch 不包含分支 $branch_name"
+            fi
             if [ "$had_branch" = "" ]; then
               echo "generate=1" >> $GITHUB_ENV
             else
