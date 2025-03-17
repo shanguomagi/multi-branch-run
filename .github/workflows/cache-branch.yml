@@ -70,10 +70,10 @@ jobs:
             echo "generate=1" >> $GITHUB_ENV
           else
             branch_name=$(echo "$branch_info" | jq -r '.branch_name')
-            echo "branch_name=${branch_name}" >> $GITHUB_ENV
-            echo "find branch_info $branch_info $branch_name"
-            echo "Checking for branch: $branch_name"
-            echo "generate=" >> $GITHUB_ENV
+#            echo "branch_name=${branch_name}" >> $GITHUB_ENV
+#            echo "find branch_info $branch_info $branch_name"
+#            echo "Checking for branch: $branch_name"
+#            echo "generate=" >> $GITHUB_ENV
 #            had_branch=$(git branch -r | grep "${{env.branch_name}}")
 #            echo="had_branch=$had_branch"
 #            res=$($had_branch" | grep -q "$branch_name)
