@@ -81,8 +81,8 @@ jobs:
 #            else
 #               echo "不包含：had_branch"
 #            fi
-            res=$(echo "$had_branch" | grep "$branch_name")
-            echo "res=$res"
+#            res=$(echo "$had_branch" | grep "$branch_name")
+#            echo "res=$res"
             if [ "$had_branch" = "" ]; then
               echo "generate=1" >> $GITHUB_ENV
             else
