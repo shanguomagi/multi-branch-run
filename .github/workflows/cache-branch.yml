@@ -73,8 +73,9 @@ jobs:
             echo "branch_name=${branch_name}" >> $GITHUB_ENV
             echo "find branch_info $branch_info $branch_name"
             echo "Checking for branch: $branch_name"
-            had_branch=$(git branch -r | grep "${{env.branch_name}}")
-            echo="had_branch=$had_branch"
+            echo "generate=" >> $GITHUB_ENV
+#            had_branch=$(git branch -r | grep "${{env.branch_name}}")
+#            echo="had_branch=$had_branch"
 #            res=$($had_branch" | grep -q "$branch_name)
 #            if [[ "$had_branch" == *"${{env.branch_name}}"* ]]; then
 #               echo "包含：had_branch"
@@ -83,17 +84,17 @@ jobs:
 #            fi
 #            res=$(echo "$had_branch" | grep "$branch_name")
 #            echo "res=$res"
-            if [ "$had_branch" = "" ]; then
-              echo "generate=1" >> $GITHUB_ENV
-            else
-              jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
-              time=$(date +%Y-%m-%d\ %H:%M:%S)
-              jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
-              git status
-              git commit -a -m "Tmp Branch $branch_name"
-              git push
-              echo "generate=" >> $GITHUB_ENV
-            fi
+#            if [ "$had_branch" = "" ]; then
+#              echo "generate=1" >> $GITHUB_ENV
+#            else
+#              jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
+#              time=$(date +%Y-%m-%d\ %H:%M:%S)
+#              jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
+#              git status
+#              git commit -a -m "Tmp Branch $branch_name"
+#              git push
+#              echo "generate=" >> $GITHUB_ENV
+#            fi
           fi
 #          echo "$branch_name"
 
