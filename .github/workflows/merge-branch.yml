@@ -52,6 +52,7 @@ jobs:
             COMMIT_HASH=$(git rev-parse --short origin/$branch)
             echo "merging: ${{env.TMP_BRANCH}}($git_hash) merge $branch($COMMIT_HASH)"
             MERGE_ERROR=$(git merge --allow-unrelated-histories --no-ff origin/$branch -m "auto" 2>&1)
+            echo "msg=$MERGE_ERROR"
             EXIT_CODE=$?
             echo "err=$MERGE_ERROR and code=$EXIT_CODE"
             if [ $EXIT_CODE -ne 0 ]; then
