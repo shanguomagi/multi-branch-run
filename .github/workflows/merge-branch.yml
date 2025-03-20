@@ -53,6 +53,7 @@ jobs:
               COMMIT_HASH=$(git rev-parse origin/$branch)
               echo "Error: Merge conflict detected when merging branch=origin/$branch hash=$COMMIT_HASH"
               echo "CONFLICT_BRANCH_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+              echo "CONFLICT_BRANCH=$branch" >> $GITHUB_ENV
               exit 1
             fi
           done
@@ -67,10 +68,9 @@ jobs:
       - name: Check for merge conflicts
         if: steps.merge.outcome == 'failure' && inputs.branches != ''
         run: |
-          echo "Merge conflicts have occurred. Please manually resolve the conflicts and try again with the follow steps:"
-          echo "steps.merge.outcome=${{steps.merge.outcome}}"
+          echo "There ara conflicts when merging origin/${{env.CONFLICT_BRANCH}} hash=${{env.CONFLICT_BRANCH_HASH}}, you can use cmds:"
           echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH }} origin/${{ env.TMP_BRANCH }}"
-          echo "git merge --no-ff ${{env.CONFLICT_BRANCH_HASH}}"
-          echo "You should resolve conflicts and commit then push it."
-          echo "git push origin ${{ env.TMP_BRANCH }}"
+          echo "git checkout ${{ env.TMP_BRANCH }}; git pull"
+          echo "git merge --no-ff origin/${{env.CONFLICT_BRANCH}}"
+          echo "git push"
           exit 1
