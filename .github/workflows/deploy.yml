@@ -34,7 +34,7 @@ jobs:
       contents: write
     with:
       branches: ${{ github.event.inputs.branches  }}
-      rm_old_branch: ${{ github.event.inputs.rm_old_branch }}"
+      rm_old_branch: ${{ github.event.inputs.rm_old_branch }}
   merge_branches:
     needs: multiple_branches
     uses: ./.github/workflows/merge-branch.yml
