@@ -7,6 +7,10 @@ on:
         description: 'To Merge Branches'
         required: false
         type: string
+      rm_old_branch:
+        description: 'Will remove old tmp branch, if empty dont remove it'
+        required: false
+        type: string
 
 jobs:
   multiple-branches:
@@ -84,13 +88,19 @@ jobs:
             had_branch=$(git branch -r)
             echo "had_branch=$had_branch"
             if [[ "$had_branch" == *"$branch_name"* ]]; then
-              jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
-              time=$(date +%Y-%m-%d\ %H:%M:%S)
-              jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
-              git commit -a -m "Tmp Branch $branch_name"
-              git push
-              echo "exist:$branch_name, generate=exist"
-              echo "generate=exist" >> $GITHUB_ENV
+              if [[ "${{inputs.rm_old_branch}}" == '' ]]; then
+                jq --arg currnent "$branch_name" '.current_branch = $currnent' ${{ env.BRANCH_JSON }} > temp.json
+                time=$(date +%Y-%m-%d\ %H:%M:%S)
+                jq --arg time "$time" '.time = $time'  temp.json  > temp1.json && mv temp1.json ${{ env.BRANCH_JSON }}
+                git commit -a -m "Tmp Branch $branch_name"
+                git push
+                echo "exist:$branch_name, generate=exist"
+                echo "generate=exist" >> $GITHUB_ENV
+              else
+                git push origin -d $branch_name
+                echo "delete old tmp branch $branch_name, generate=needbranch"
+                echo "generate=needbranch" >> $GITHUB_ENV
+              fi
             else
               echo "generate=needbranch" >> $GITHUB_ENV
               echo "not exist cached:$branch_name, generate=needbranch"
