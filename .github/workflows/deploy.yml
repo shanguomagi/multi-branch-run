@@ -9,7 +9,7 @@ on:
         type: string
         default: ""
       rm_old_branch:
-        description: 'Branches to merge (separated by space)'
+        description: 'Will remove old merged tmp branch, if empty dont remove it'
         required: false
         type: string
         default: ""

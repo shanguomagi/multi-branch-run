@@ -8,7 +8,7 @@ on:
         required: false
         type: string
       rm_old_branch:
-        description: 'Will remove old tmp branch, if empty dont remove it'
+        description: 'Will remove old merged tmp branch, if empty dont remove it'
         required: false
         type: string
 
