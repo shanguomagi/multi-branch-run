@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: ""
+      rm_old_branch:
+        description: 'Branches to merge (separated by space)'
+        required: false
+        type: string
+        default: ""
       environment:
         description: 'Environment (e.g., dev, staging, prod)'
         required: true
@@ -29,6 +34,7 @@ jobs:
       contents: write
     with:
       branches: ${{ github.event.inputs.branches  }}
+      rm_old_branch: ${{ github.event.inputs.rm_old_branch }}"
   merge_branches:
     needs: multiple_branches
     uses: ./.github/workflows/merge-branch.yml
