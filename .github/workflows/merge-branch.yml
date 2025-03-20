@@ -44,20 +44,12 @@ jobs:
         id: merge
         continue-on-error: true
         run: |
-          branches="${{ inputs.branches }}"
-          branches="main $branches"
-          git fetch origin; git branch
+          branches="main ${{ inputs.branches }}"
           git_hash=$(git rev-parse --short HEAD)
           for branch in $branches; do
             COMMIT_HASH=$(git rev-parse --short origin/$branch)
             echo "merging: ${{env.TMP_BRANCH}}($git_hash) merge $branch($COMMIT_HASH)"
-            set -x
-            MERGE_ERROR=$(git merge --allow-unrelated-histories --no-ff origin/$branch -m "auto" 2>&1)
-            set +x
-            echo "msg=$MERGE_ERROR"
-            EXIT_CODE=$?
-            echo "err=$MERGE_ERROR and code=$EXIT_CODE"
-            if [ $EXIT_CODE -ne 0 ]; then
+            if ! git merge --allow-unrelated-histories --no-ff origin/$branch -m auto; then
               COMMIT_HASH=$(git rev-parse origin/$branch)
               echo "Error: Merge conflict detected when merging branch=origin/$branch hash=$COMMIT_HASH"
               echo "CONFLICT_BRANCH_HASH=$COMMIT_HASH" >> $GITHUB_ENV
