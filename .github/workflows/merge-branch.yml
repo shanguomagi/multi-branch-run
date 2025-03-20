@@ -44,8 +44,7 @@ jobs:
         id: merge
         continue-on-error: true
         run: |
-          branches="${{ inputs.branches }}"
-          git merge --allow-unrelated-histories origin/main -m "auto_merge"
+          branches="main ${{ inputs.branches }}"
           git_hash=$(git rev-parse --short HEAD)
           for branch in $branches; do
             COMMIT_HASH=$(git rev-parse --short origin/$branch)
@@ -72,6 +71,6 @@ jobs:
           echo "There ara conflicts when merging origin/${{env.CONFLICT_BRANCH}} hash=${{env.CONFLICT_BRANCH_HASH}}, you can use cmds:"
           echo "git fetch origin; git checkout -b ${{ env.TMP_BRANCH }} origin/${{ env.TMP_BRANCH }}"
           echo "git checkout ${{ env.TMP_BRANCH }}; git pull"
-          echo "git merge --no-ff origin/${{env.CONFLICT_BRANCH}}"
+          echo "git merge --no-ff origin/${{env.CONFLICT_BRANCH}} -m auto_merge"
           echo "git push"
           exit 1
