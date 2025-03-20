@@ -12,7 +12,7 @@ on:
         description: 'Will remove old merged tmp branch, if empty dont remove it'
         required: false
         type: string
-        default: ""
+        default: ''
       environment:
         description: 'Environment (e.g., dev, staging, prod)'
         required: true
