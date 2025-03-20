@@ -49,7 +49,7 @@ jobs:
           for branch in $branches; do
             COMMIT_HASH=$(git rev-parse --short origin/$branch)
             echo "merging: ${{env.TMP_BRANCH}}($git_hash) merge $branch($COMMIT_HASH)"
-            if ! git merge --allow-unrelated-histories --no-ff origin/$branch -m "auto_merge"; then
+            if ! git merge --allow-unrelated-histories --no-ff origin/$branch --message "auto_merge"; then
               COMMIT_HASH=$(git rev-parse origin/$branch)
               echo "Error: Merge conflict detected when merging branch=origin/$branch hash=$COMMIT_HASH"
               echo "CONFLICT_BRANCH_HASH=$COMMIT_HASH" >> $GITHUB_ENV
